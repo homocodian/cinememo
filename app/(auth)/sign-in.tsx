@@ -2,25 +2,31 @@ import React from "react";
 import { Link } from "expo-router";
 import { Image, View, Pressable } from "react-native";
 
-import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { useAuth } from "@/context/auth";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Snackbar } from "@/components/ui/use-snackbar";
+import { useAppTheme } from "@/context/material-3-theme-provider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { type AuthSchema, authSchema } from "@/lib/validations/auth";
-import { useAppTheme } from "@/context/material-3-theme-provider";
+import { Button, HelperText, Text, TextInput } from "react-native-paper";
 
 function SignIn() {
 	const insets = useSafeAreaInsets();
 	const theme = useAppTheme();
-	const { signIn } = useAuth();
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [isSecureEntry, setIsSecureEntry] = React.useState(true);
+	const { signIn, signInWithGoogle, sendPasswordResetEmail } = useAuth();
+	const [loadingGoogleSignIn, setLoadingGoogleSignIn] = React.useState(false);
 
 	const {
 		control,
 		handleSubmit,
 		formState: { errors },
+		clearErrors,
+		resetField,
+		setError,
+		getValues,
 	} = useForm<AuthSchema>({
 		resolver: zodResolver(authSchema),
 		defaultValues: {
@@ -29,16 +35,91 @@ function SignIn() {
 		},
 	});
 
+	async function handleGoogleSignIn() {
+		setLoadingGoogleSignIn(true);
+		try {
+			await signInWithGoogle();
+		} catch (error) {
+			Snackbar({
+				text: "Something went wrong, please try again",
+			});
+		} finally {
+			setLoadingGoogleSignIn(false);
+		}
+	}
+
 	function handleEyePress() {
 		setIsSecureEntry((prev) => !prev);
 	}
 
-	function onSubmit(data: AuthSchema) {
-		signIn({
-			email: data.email,
-			id: "1",
-			displayName: "As",
-		});
+	async function onSubmit(data: AuthSchema) {
+		setIsLoading(true);
+
+		try {
+			await signIn(data.email, data.password);
+		} catch (error: any) {
+			resetField("password");
+			if (error?.code) {
+				switch (error.code) {
+					case "auth/wrong-password" || "auth/user-not-found":
+						Snackbar({ text: "Invalid email or password" });
+						break;
+
+					case "auth/too-many-requests":
+						Snackbar({
+							text: "Too many attempts for this account, please try later or reset your password to immediately restore",
+						});
+						break;
+
+					default:
+						Snackbar({
+							text: "Something went wrong, please try again",
+						});
+				}
+			} else {
+				Snackbar({
+					text: "Something went wrong, please try again",
+				});
+			}
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
+	async function handleForgotPassword() {
+		resetField("password");
+
+		const email = getValues("email");
+
+		if (!email) {
+			return setError("email", {
+				message: "Email is required",
+				type: "required",
+			});
+		}
+
+		clearErrors("email");
+
+		try {
+			setIsLoading(true);
+			await sendPasswordResetEmail(email);
+			Snackbar({
+				text: "Email sent, if not found please check your spam folder",
+			});
+		} catch (error: any) {
+			if (error?.code && error.code === "auth/invalid-email") {
+				setError("email", { message: "Invalid email", type: "validate" });
+				Snackbar({
+					text: "Invalid email",
+				});
+			} else {
+				Snackbar({
+					text: "Failed to send email, please try later",
+				});
+			}
+		} finally {
+			setIsLoading(false);
+		}
 	}
 
 	return (
@@ -128,7 +209,11 @@ function SignIn() {
 					</HelperText>
 				</View>
 
-				<Pressable className="self-end">
+				<Pressable
+					className="self-end"
+					onPress={handleForgotPassword}
+					disabled={isLoading}
+				>
 					<Text variant="titleMedium" className="text-blue-500 underline">
 						Forgot Password?
 					</Text>
@@ -139,6 +224,7 @@ function SignIn() {
 					onPress={handleSubmit(onSubmit)}
 					className="self-stretch mt-5"
 					loading={isLoading}
+					disabled={isLoading}
 				>
 					SIGN IN
 				</Button>
@@ -158,7 +244,14 @@ function SignIn() {
 				/>
 			</View>
 
-			<Button mode="contained" icon="google" className="self-stretch mx-5">
+			<Button
+				mode="contained"
+				icon="google"
+				className="self-stretch mx-5"
+				loading={loadingGoogleSignIn}
+				onPress={handleGoogleSignIn}
+				disabled={loadingGoogleSignIn}
+			>
 				SIGN IN WITH GOOGLE
 			</Button>
 

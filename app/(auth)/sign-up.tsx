@@ -25,6 +25,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppTheme } from "@/context/material-3-theme-provider";
+import { Snackbar } from "@/components/ui/use-snackbar";
 
 const keyboardVerticalOffset = Platform.OS === "ios" ? 40 : 0;
 const keyboardBehavoir = Platform.OS === "ios" ? "padding" : "height";
@@ -33,11 +34,12 @@ function Register() {
 	const insets = useSafeAreaInsets();
 	const theme = useAppTheme();
 	const router = useRouter();
-	const { signIn } = useAuth();
+	const { createUser, signInWithGoogle } = useAuth();
 	const [isSecureEntry, setIsSecureEntry] = React.useState(true);
 	const [isSecureEntryForConfirm, setIsSecureEntryForConfirm] =
 		React.useState(true);
 	const [isLoading, setIsLoading] = React.useState(false);
+	const [loadingGoogleSignIn, setLoadingGoogleSignIn] = React.useState(false);
 
 	const {
 		control,
@@ -48,8 +50,6 @@ function Register() {
 		defaultValues: {
 			email: "",
 			password: "",
-			firstName: "",
-			lastName: "",
 			confirmPassword: "",
 		},
 	});
@@ -70,12 +70,45 @@ function Register() {
 		setIsSecureEntryForConfirm((prev) => !prev);
 	}
 
-	function onSubmit(data: RegisterAuthSchema) {
-		signIn({
-			email: data.email,
-			id: "1",
-			displayName: `${data.firstName} ${data.lastName}`,
-		});
+	async function handleGoogleSignIn() {
+		setLoadingGoogleSignIn(true);
+		try {
+			await signInWithGoogle();
+		} catch (error) {
+			Snackbar({
+				text: "Something went wrong, please try again",
+			});
+		} finally {
+			setLoadingGoogleSignIn(false);
+		}
+	}
+
+	async function onSubmit(data: RegisterAuthSchema) {
+		setIsLoading(true);
+
+		try {
+			const user = await createUser(data.email, data.password);
+		} catch (error: any) {
+			if (error?.code) {
+				switch (error.code) {
+					case "auth/email-already-in-use":
+						Snackbar({ text: "User already exists" });
+						break;
+
+					default:
+						Snackbar({
+							text: "Something went wrong, please try again",
+						});
+						break;
+				}
+			} else {
+				Snackbar({
+					text: "Something went wrong, please try again",
+				});
+			}
+		} finally {
+			setIsLoading(false);
+		}
 	}
 
 	return (
@@ -133,50 +166,6 @@ function Register() {
 					</View>
 				</View>
 				<View className="flex justify-between items-center  self-stretch px-5">
-					<View className="self-stretch">
-						<Controller
-							control={control}
-							rules={{
-								required: true,
-							}}
-							render={({ field: { onChange, onBlur, value } }) => (
-								<TextInput
-									onBlur={onBlur}
-									onChangeText={onChange}
-									value={value}
-									mode="outlined"
-									label="First Name"
-									className="w-full"
-								/>
-							)}
-							name="firstName"
-						/>
-						<HelperText type="error" visible={!!errors.firstName}>
-							{errors.firstName?.message}
-						</HelperText>
-					</View>
-					<View className="self-stretch">
-						<Controller
-							control={control}
-							rules={{
-								required: true,
-							}}
-							render={({ field: { onChange, onBlur, value } }) => (
-								<TextInput
-									onBlur={onBlur}
-									onChangeText={onChange}
-									value={value}
-									mode="outlined"
-									label="Last Name"
-									className="w-full"
-								/>
-							)}
-							name="lastName"
-						/>
-						<HelperText type="error" visible={!!errors.lastName}>
-							{errors.lastName?.message}
-						</HelperText>
-					</View>
 					<View className="self-stretch">
 						<Controller
 							control={control}
@@ -273,6 +262,7 @@ function Register() {
 						onPress={handleSubmit(onSubmit)}
 						className="self-stretch mt-1"
 						loading={isLoading}
+						disabled={isLoading}
 					>
 						SIGN UP
 					</Button>
@@ -290,7 +280,15 @@ function Register() {
 						style={{ backgroundColor: theme.colors.primary }}
 					/>
 				</View>
-				<Button mode="contained" icon="google" className="self-stretch mx-5">
+
+				<Button
+					mode="contained"
+					icon="google"
+					className="self-stretch mx-5"
+					onPress={handleGoogleSignIn}
+					loading={loadingGoogleSignIn}
+					disabled={loadingGoogleSignIn}
+				>
 					SIGN IN WITH GOOGLE
 				</Button>
 

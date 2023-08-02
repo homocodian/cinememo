@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Material3ThemeProvider } from "@/context/material-3-theme-provider";
 // Catch any errors thrown by the Layout component.
 export { ErrorBoundary } from "expo-router";
+import { SnackbarContainer } from "@/components/ui/snackbar-container";
 
 import "@/styles/global.css";
 
@@ -56,6 +57,7 @@ function RootLayoutNav() {
 			<Material3ThemeProvider>
 				<AuthProvider>
 					<Slot />
+					<SnackbarContainer />
 				</AuthProvider>
 			</Material3ThemeProvider>
 		</SafeAreaProvider>

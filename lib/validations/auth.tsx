@@ -10,12 +10,6 @@ export const authSchema = z.object({
 export const registerAuthSchema = authSchema
 	.merge(
 		z.object({
-			firstName: z
-				.string()
-				.min(3, "First name must contain at least 3 characters"),
-			lastName: z
-				.string()
-				.min(3, "Last name must contain at least 3 characters"),
 			password: z
 				.string()
 				.min(8, "Password must contain at least 8 characters")
@@ -26,10 +20,6 @@ export const registerAuthSchema = authSchema
 			confirmPassword: z.string(),
 		})
 	)
-	.refine((data) => data.firstName !== data.lastName, {
-		message: "Last name cannot be same as first name",
-		path: ["lastName"],
-	})
 	.refine((data) => data.password === data.confirmPassword, {
 		message: "Passwords don't match",
 		path: ["confirmPassword"],
