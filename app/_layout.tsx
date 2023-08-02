@@ -3,12 +3,12 @@ import { useFonts } from "expo-font";
 import { Slot, SplashScreen } from "expo-router";
 
 import {
-	DarkTheme,
-	DefaultTheme,
+	DarkTheme as NavigationDarkTheme,
+	DefaultTheme as NavigationDefaultTheme,
 	ThemeProvider,
 } from "@react-navigation/native";
 import { AuthProvider } from "@/context/auth";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, adaptNavigationTheme } from "react-native-paper";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useColorModeValue } from "@/utils/use-color-mode-value";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -19,6 +19,11 @@ export {
 	// Catch any errors thrown by the Layout component.
 	ErrorBoundary,
 } from "expo-router";
+
+const { LightTheme, DarkTheme } = adaptNavigationTheme({
+	reactNavigationLight: NavigationDefaultTheme,
+	reactNavigationDark: NavigationDarkTheme,
+});
 
 export const unstable_settings = {
 	initialRouteName: "index",
@@ -62,7 +67,7 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-	const theme = useColorModeValue(DefaultTheme, DarkTheme);
+	const theme = useColorModeValue(LightTheme, DarkTheme);
 
 	return (
 		<PaperProvider>

@@ -1,6 +1,11 @@
-import { User } from "@/store/use-auth";
 import { router, useRootNavigationState, useSegments } from "expo-router";
 import React from "react";
+
+type User = {
+	id: string;
+	displayName: string;
+	email: string;
+};
 
 type Context = {
 	signIn: (User: User) => void;

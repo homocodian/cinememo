@@ -5,7 +5,7 @@
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
-		"scheme": "myapp",
+		"scheme": "com.homocodian.cinememo",
 		"userInterfaceStyle": "automatic",
 		"splash": {
 			"image": "./assets/images/splash.png",
@@ -14,21 +14,38 @@
 		},
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
-			"supportsTablet": true
+			"supportsTablet": true,
+			"bundleIdentifier": "com.homocodian.cinememo"
 		},
 		"android": {
 			"adaptiveIcon": {
 				"foregroundImage": "./assets/images/adaptive-icon.png",
 				"backgroundColor": "#ffffff"
 			},
-			"softwareKeyboardLayoutMode": "pan"
+			"softwareKeyboardLayoutMode": "pan",
+			"package": "com.homocodian.cinememo",
+			"googleServicesFile": "./google-services.json"
 		},
 		"web": {
 			"bundler": "metro",
 			"output": "static",
 			"favicon": "./assets/images/favicon.png"
 		},
-		"plugins": ["expo-router"],
+		"plugins": [
+			"expo-router",
+			"@react-native-firebase/app",
+			"@react-native-firebase/perf",
+			"@react-native-firebase/crashlytics",
+			"@react-native-google-signin/google-signin",
+			[
+				"expo-build-properties",
+				{
+					"ios": {
+						"useFrameworks": "static"
+					}
+				}
+			]
+		],
 		"experiments": {
 			"tsconfigPaths": true,
 			"typedRoutes": true
