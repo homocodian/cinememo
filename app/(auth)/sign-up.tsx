@@ -15,7 +15,6 @@ import {
 	Text,
 	TextInput,
 	Tooltip,
-	useTheme,
 } from "react-native-paper";
 import {
 	registerAuthSchema,
@@ -25,13 +24,14 @@ import { useAuth } from "@/context/auth";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAppTheme } from "@/context/material-3-theme-provider";
 
 const keyboardVerticalOffset = Platform.OS === "ios" ? 40 : 0;
 const keyboardBehavoir = Platform.OS === "ios" ? "padding" : "height";
 
 function Register() {
 	const insets = useSafeAreaInsets();
-	const theme = useTheme();
+	const theme = useAppTheme();
 	const router = useRouter();
 	const { signIn } = useAuth();
 	const [isSecureEntry, setIsSecureEntry] = React.useState(true);

@@ -2,25 +2,20 @@ import React from "react";
 import { Link } from "expo-router";
 import { Image, View, Pressable } from "react-native";
 
-import {
-	Button,
-	HelperText,
-	Text,
-	TextInput,
-	useTheme,
-} from "react-native-paper";
+import { Button, HelperText, Text, TextInput } from "react-native-paper";
 import { useAuth } from "@/context/auth";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { type AuthSchema, authSchema } from "@/lib/validations/auth";
+import { useAppTheme } from "@/context/material-3-theme-provider";
 
 function SignIn() {
 	const insets = useSafeAreaInsets();
-	const theme = useTheme();
+	const theme = useAppTheme();
 	const { signIn } = useAuth();
-	const [isSecureEntry, setIsSecureEntry] = React.useState(true);
 	const [isLoading, setIsLoading] = React.useState(false);
+	const [isSecureEntry, setIsSecureEntry] = React.useState(true);
 
 	const {
 		control,
