@@ -1,14 +1,13 @@
 import React from "react";
 
-import { Divider, Drawer } from "react-native-paper";
-import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { getStatusBarHeight } from "@/utils/statusbar-height";
 import { useAuth } from "@/context/auth";
-
-const StatusBarHeight = getStatusBarHeight();
+import { Divider, Drawer } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { DrawerContentComponentProps } from "@react-navigation/drawer";
 
 export default function DrawerContent(props: DrawerContentComponentProps) {
 	const active = props.state.index;
+	const insets = useSafeAreaInsets();
 	const { signOut } = useAuth();
 
 	function navigate(screen: string) {
@@ -19,7 +18,7 @@ export default function DrawerContent(props: DrawerContentComponentProps) {
 	return (
 		<Drawer.Section
 			title="Cinememo"
-			style={{ marginTop: StatusBarHeight }}
+			style={{ paddingTop: insets.top }}
 			showDivider={false}
 		>
 			<Drawer.Item
