@@ -5,17 +5,22 @@
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
-		"scheme": "com.homocodian.cinememo",
+		"scheme": "cinememo",
 		"userInterfaceStyle": "automatic",
-		"splash": {
-			"image": "./assets/images/splash.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#000000"
-		},
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.homocodian.cinememo"
+			"bundleIdentifier": "com.homocodian.cinememo",
+			"splash": {
+				"image": "./assets/images/splash_light.png",
+				"resizeMode": "contain",
+				"backgroundColor": "#ffffff",
+				"dark": {
+					"image": "./assets/images/splash.png",
+					"resizeMode": "contain",
+					"backgroundColor": "#000000"
+				}
+			}
 		},
 		"android": {
 			"adaptiveIcon": {
@@ -24,7 +29,17 @@
 			},
 			"softwareKeyboardLayoutMode": "pan",
 			"package": "com.homocodian.cinememo",
-			"googleServicesFile": "./google-services.json"
+			"googleServicesFile": "./google-services.json",
+			"splash": {
+				"image": "./assets/images/splash_light.png",
+				"resizeMode": "contain",
+				"backgroundColor": "#ffffff",
+				"dark": {
+					"image": "./assets/images/splash.png",
+					"resizeMode": "contain",
+					"backgroundColor": "#000000"
+				}
+			}
 		},
 		"web": {
 			"bundler": "metro",
