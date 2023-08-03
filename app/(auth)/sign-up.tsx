@@ -5,6 +5,7 @@ import {
 	Platform,
 	ScrollView,
 	KeyboardAvoidingView,
+	Keyboard,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 
@@ -23,11 +24,11 @@ import {
 import { useAuth } from "@/context/auth";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Snackbar } from "@/components/ui/use-snackbar";
+import getAlertMessage from "@/utils/get-firebase-error-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useAppTheme } from "@/context/material-3-theme-provider";
-import { Snackbar } from "@/components/ui/use-snackbar";
 
-const keyboardVerticalOffset = Platform.OS === "ios" ? 40 : 0;
 const keyboardBehavoir = Platform.OS === "ios" ? "padding" : "height";
 
 function Register() {
@@ -71,6 +72,7 @@ function Register() {
 	}
 
 	async function handleGoogleSignIn() {
+		Keyboard.dismiss();
 		setLoadingGoogleSignIn(true);
 		try {
 			await signInWithGoogle();
@@ -84,28 +86,16 @@ function Register() {
 	}
 
 	async function onSubmit(data: RegisterAuthSchema) {
+		Keyboard.dismiss();
 		setIsLoading(true);
 
 		try {
-			const user = await createUser(data.email, data.password);
+			await createUser(data.email, data.password);
 		} catch (error: any) {
-			if (error?.code) {
-				switch (error.code) {
-					case "auth/email-already-in-use":
-						Snackbar({ text: "User already exists" });
-						break;
-
-					default:
-						Snackbar({
-							text: "Something went wrong, please try again",
-						});
-						break;
-				}
-			} else {
-				Snackbar({
-					text: "Something went wrong, please try again",
-				});
-			}
+			const message = getAlertMessage(error);
+			Snackbar({
+				text: message,
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -114,7 +104,6 @@ function Register() {
 	return (
 		<KeyboardAvoidingView
 			behavior={keyboardBehavoir}
-			keyboardVerticalOffset={keyboardVerticalOffset}
 			style={{
 				flex: 1,
 				// Paddings to handle safe area
@@ -143,6 +132,7 @@ function Register() {
 					position: "relative",
 					gap: 20,
 				}}
+				keyboardShouldPersistTaps="handled"
 			>
 				<View className="flex justify-center items-center gap-3 px-5">
 					<Image
@@ -181,6 +171,7 @@ function Register() {
 									label="Email"
 									className="w-full"
 									keyboardType="email-address"
+									autoCapitalize="none"
 								/>
 							)}
 							name="email"
@@ -204,6 +195,7 @@ function Register() {
 									label="Password"
 									className="w-full"
 									secureTextEntry={isSecureEntry}
+									autoCapitalize="none"
 									right={
 										isSecureEntry ? (
 											<TextInput.Icon icon="eye" onPress={handleEyePress} />
@@ -235,6 +227,7 @@ function Register() {
 									label="Confirm Password"
 									className="w-full"
 									secureTextEntry={isSecureEntryForConfirm}
+									autoCapitalize="none"
 									right={
 										isSecureEntryForConfirm ? (
 											<TextInput.Icon

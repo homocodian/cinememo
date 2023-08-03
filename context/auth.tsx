@@ -22,7 +22,7 @@ async function onGoogleButtonPress() {
 	return auth().signInWithCredential(googleCredential);
 }
 
-export type User = FirebaseAuthTypes.User | null;
+export type User = FirebaseAuthTypes.User;
 
 type Context = {
 	signIn: (
@@ -30,7 +30,7 @@ type Context = {
 		password: string
 	) => Promise<FirebaseAuthTypes.UserCredential>;
 	signOut: () => Promise<void>;
-	user: User;
+	user: User | null;
 	signInWithGoogle: () => Promise<FirebaseAuthTypes.UserCredential>;
 	createUser: (
 		email: string,
@@ -47,7 +47,7 @@ export function useAuth() {
 }
 
 // This hook will protect the route access based on user authentication.
-function useProtectedRoute(user: User) {
+function useProtectedRoute(user: User | null) {
 	const segments = useSegments();
 	const navigationState = useRootNavigationState();
 
@@ -75,10 +75,10 @@ function useProtectedRoute(user: User) {
 export function AuthProvider(props: { children: React.ReactNode }) {
 	// Set an initializing state whilst Firebase connects
 	const [initializing, setInitializing] = React.useState(true);
-	const [user, setUser] = React.useState<User>(null);
+	const [user, setUser] = React.useState<User | null>(null);
 
 	// Handle user state changes
-	function onAuthStateChanged(user: User) {
+	function onAuthStateChanged(user: User | null) {
 		// console.log("🚀 ~ file: auth.tsx:82 ~ onAuthStateChanged ~ user:", user);
 		setUser(user);
 		if (initializing) setInitializing(false);

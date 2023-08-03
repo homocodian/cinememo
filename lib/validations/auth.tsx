@@ -21,7 +21,7 @@ export const registerAuthSchema = authSchema
 		})
 	)
 	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords don't match",
+		message: "Passwords does not match",
 		path: ["confirmPassword"],
 	});
 

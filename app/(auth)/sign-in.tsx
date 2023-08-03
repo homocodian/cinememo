@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "expo-router";
-import { Image, View, Pressable } from "react-native";
+import { Image, View, Pressable, Keyboard } from "react-native";
 
 import { useAuth } from "@/context/auth";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Snackbar } from "@/components/ui/use-snackbar";
+import getAlertMessage from "@/utils/get-firebase-error-message";
 import { useAppTheme } from "@/context/material-3-theme-provider";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { type AuthSchema, authSchema } from "@/lib/validations/auth";
@@ -36,6 +37,7 @@ function SignIn() {
 	});
 
 	async function handleGoogleSignIn() {
+		Keyboard.dismiss();
 		setLoadingGoogleSignIn(true);
 		try {
 			await signInWithGoogle();
@@ -53,49 +55,39 @@ function SignIn() {
 	}
 
 	async function onSubmit(data: AuthSchema) {
+		Keyboard.dismiss();
 		setIsLoading(true);
 
 		try {
 			await signIn(data.email, data.password);
 		} catch (error: any) {
 			resetField("password");
-			if (error?.code) {
-				switch (error.code) {
-					case "auth/wrong-password" || "auth/user-not-found":
-						Snackbar({ text: "Invalid email or password" });
-						break;
 
-					case "auth/too-many-requests":
-						Snackbar({
-							text: "Too many attempts for this account, please try later or reset your password to immediately restore",
-						});
-						break;
+			const message = getAlertMessage(error);
 
-					default:
-						Snackbar({
-							text: "Something went wrong, please try again",
-						});
-				}
-			} else {
-				Snackbar({
-					text: "Something went wrong, please try again",
-				});
-			}
+			Snackbar({
+				text: message,
+			});
 		} finally {
 			setIsLoading(false);
 		}
 	}
 
 	async function handleForgotPassword() {
+		Keyboard.dismiss();
 		resetField("password");
 
 		const email = getValues("email");
 
 		if (!email) {
-			return setError("email", {
+			Snackbar({
+				text: "Please type your email in the email field",
+			});
+			setError("email", {
 				message: "Email is required",
 				type: "required",
 			});
+			return;
 		}
 
 		clearErrors("email");
@@ -169,6 +161,7 @@ function SignIn() {
 								label="Email"
 								className="w-full"
 								keyboardType="email-address"
+								autoCapitalize="none"
 							/>
 						)}
 						name="email"
@@ -193,6 +186,7 @@ function SignIn() {
 								label="Password"
 								className="w-full"
 								secureTextEntry={isSecureEntry}
+								autoCapitalize="none"
 								right={
 									isSecureEntry ? (
 										<TextInput.Icon icon="eye" onPress={handleEyePress} />
