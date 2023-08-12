@@ -1,20 +1,16 @@
 import React from "react";
 import { Link } from "expo-router";
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, View } from "react-native";
 
-import { Text, View } from "@/components/Themed";
 import EditScreenInfo from "@/components/EditScreenInfo";
+import { Text } from "react-native-paper";
 
 export default function HomeScreen() {
 	return (
 		<React.Fragment>
 			<View style={styles.container}>
 				<Text style={styles.title}>Modal</Text>
-				<View
-					style={styles.separator}
-					lightColor="#eee"
-					darkColor="rgba(255,255,255,0.1)"
-				/>
+				<View style={styles.separator} />
 				<EditScreenInfo path="app/modal.tsx" />
 				{/* @ts-expect-error */}
 				<Link href={{ pathname: "details", params: { name: "Bacon" } }} asChild>
