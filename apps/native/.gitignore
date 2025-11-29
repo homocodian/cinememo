@@ -1,0 +1,9 @@
+# expo
+**/.expo/
+**/build-inspect/
+.easignore
+**/ios/
+**/android/
+app.json
+
+**/google-services*.json

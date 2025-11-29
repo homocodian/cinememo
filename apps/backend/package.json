@@ -2,8 +2,8 @@
   "name": "@cinememo/backend",
   "version": "0.0.10",
   "scripts": {
-    "dev": "bunx kill-port 5500 && NODE_DEBUG=* NODE_ENV=development bun --watch src/index.ts",
-    "build": "NODE_ENV=production bun build --target=bun --sourcemap=linked ./src/index.ts --outdir ./dist",
+    "dev": "NODE_DEBUG=* NODE_ENV=development bun --watch src/index.ts",
+    "build": "NODE_ENV=production bun build --target=bun --sourcemap ./src/index.ts --outdir ./dist",
     "start": "NODE_ENV=production bun ./dist/index.js",
     "test": "bun test",
     "db:migrate": "bun run ./src/db/migrate.ts",

@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: ./docker/backend.Dockerfile
+      dockerfile: ./apps/backend/Dockerfile
     image: ${REMOTE_IMAGE_NAME:?err}
     ports:
       - 5500:5500
@@ -13,8 +13,41 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./docker/web.Dockerfile
+      dockerfile: ./apps/web/Dockerfile
       args:
-        - VITE_API_BASE_URL=http://localhost:5500/api
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
     ports:
       - 8080:8080
+
+  db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cinememo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-cinememo}
+    volumes:
+      - pg-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-cinememo}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  redis-data:
+    driver: local
+  pg-data:

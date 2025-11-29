@@ -62,13 +62,8 @@ out
 
 *dump*
 
-# expo
-**/.expo/
-**/build-inspect/
-.easignore
-**/ios/
-**/android/
-app.json
-
-**/google-services*.json
 .env*
+
+docker-compose.override.yml
+
+benchmarks
