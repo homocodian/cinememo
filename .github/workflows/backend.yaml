@@ -16,20 +16,14 @@ jobs:
       - name: check out the repo
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "20"
-
       - name: Install Bun latest
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: "latest"
 
       - name: Extract version from package.json
-        id: get_version
         run: |
-          VERSION=$(node -p "require('./apps/backend/package.json').version")
+          VERSION=$(bun -p "require('./apps/backend/package.json').version")
           echo "version=${VERSION}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
@@ -61,28 +55,19 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: bun run db:migrate
 
-      - name: Determine Docker tag
-        id: docker_tag
+      - name: Set IMAGE_NAME and IMAGE_TAG
         run: |
-          SHORT_SHA=${GITHUB_SHA::7} #ignore short sha for now
-          TAG="${{ env.version }}"
-          echo "tag=${TAG}" >> $GITHUB_ENV
-
-      - name: Tag Docker image
-        run: |
-          IMAGE_NAME=${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO_NAME}}
-          TAG=${{ env.tag }}
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+          echo "IMAGE_NAME=${{secrets.DOCKERHUB_USERNAME}}/${{secrets.DOCKERHUB_REPO_NAME}}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${{ env.version }}" >> $GITHUB_ENV
 
       - name: Docker Compose Build & Push
         env:
           IMAGE_NAME: ${{ env.IMAGE_NAME }}
           IMAGE_TAG: ${{env.IMAGE_TAG}}
         run: |
-          REMOTE_IMAGE_NAME=${IMAGE_NAME}:${IMAGE_TAG} docker compose -f docker-compose.yml build backend
+          # REMOTE_IMAGE_NAME=${IMAGE_NAME}:${IMAGE_TAG} docker compose -f docker-compose.yml build backend
           REMOTE_IMAGE_NAME=${IMAGE_NAME}:latest docker compose -f docker-compose.yml build backend
-          REMOTE_IMAGE_NAME=${IMAGE_NAME}:${IMAGE_TAG} docker compose -f docker-compose.yml push backend
+          # REMOTE_IMAGE_NAME=${IMAGE_NAME}:${IMAGE_TAG} docker compose -f docker-compose.yml push backend
           REMOTE_IMAGE_NAME=${IMAGE_NAME}:latest docker compose -f docker-compose.yml push backend
 
       - name: Trigger Render deploy

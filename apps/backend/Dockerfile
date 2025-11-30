@@ -17,8 +17,8 @@ ENV NODE_ENV=production
 
 RUN bun build \
     --compile \
-    --minify-whitespace \
-    --minify-syntax \
+    --minify \
+    --sourcemap \
     --outfile server \
     src/index.ts
 
