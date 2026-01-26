@@ -1,6 +1,6 @@
 import countryLookup from "country-code-lookup";
 import UAParser from "ua-parser-js";
-import { z } from "zod";
+import * as z from "zod/v4";
 
 import { db } from "@/db";
 import { deviceTable, deviceTypeList } from "@/db/schema/user";

@@ -21,7 +21,7 @@ interface PullChangesProps extends Omit<Context, "query"> {
 export async function pullChanges({
   user,
   query,
-  error,
+  status,
   body
 }: PullChangesProps) {
   try {
@@ -40,6 +40,6 @@ export async function pullChanges({
   } catch (err) {
     console.log("🚀 ~ pull changes err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

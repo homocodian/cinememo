@@ -1,70 +1,50 @@
-import { createInsertSchema } from "drizzle-typebox";
-import { t } from "elysia";
+import { createInsertSchema } from "drizzle-zod";
+import * as z from "zod/v4";
 
-import {
-  // noteCategoryEnum,
-  noteTable
-} from "@/db/schema/note";
-
-// read note
-// const categories = noteCategoryEnum.enumValues;
-
-// const StringEnum = <T extends string[]>(values: [...T]) =>
-//   t.Unsafe<T[number]>({
-//     type: "string",
-//     enum: values
-//   });
-
-// export const queryParamsSchema = t.Optional(
-//   t.Object({
-//     category: t.Optional(StringEnum(categories))
-//   })
-// );
+import { noteTable } from "@/db/schema/note";
 
 // create note
 const _noteInsertSchema = createInsertSchema(noteTable);
 
-export const createNoteSchema = t.Omit(_noteInsertSchema, [
-  "id",
-  "createdAt",
-  "updatedAt",
-  "userId"
-]);
+export const createNoteSchema = _noteInsertSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  userId: true
+});
 
-export type CreateNote = typeof createNoteSchema.static;
+export type CreateNote = z.infer<typeof createNoteSchema>;
 
 // update note
 
-export const updateNoteSchema = t.Partial(createNoteSchema);
-
-export const updateNoteParamsSchema = t.Object({
-  id: t.String({ minimum: 1 })
+export const updateNoteSchema = createNoteSchema.partial();
+export const updateNoteParamsSchema = z.object({
+  id: z.string({ error: "ID is required" }).min(1, "ID cannot be empty")
 });
 
-export type UpdateNoteParamsSchema = typeof updateNoteParamsSchema.static;
-
-export type UpdateNote = typeof updateNoteSchema.static;
+export type UpdateNoteParamsSchema = z.infer<typeof updateNoteParamsSchema>;
+export type UpdateNote = z.infer<typeof updateNoteSchema>;
 
 // share note
 
-export const shareNoteWithSchema = t.String({ format: "email" });
-
-export type ShareNoteWithSchema = typeof shareNoteWithSchema.static;
-
-export const shareNoteWithUsersSchema = t.Array(shareNoteWithSchema);
-
-export type ShareNoteWithUsersSchema = typeof shareNoteWithUsersSchema.static;
-
-export const shareNoteParams = t.Object({
-  id: t.String({ minimum: 1 })
+export const shareNoteWithSchema = z.email({
+  error: "A valid email is required"
 });
+export type ShareNoteWithSchema = z.infer<typeof shareNoteWithSchema>;
 
-export type ShareNoteParams = typeof shareNoteParams.static;
+export const shareNoteWithUsersSchema = z.array(shareNoteWithSchema);
+export type ShareNoteWithUsersSchema = z.infer<typeof shareNoteWithUsersSchema>;
 
-export const patchShareNoteWithUsersBody = t.Union([
+export const shareNoteParams = z.object({
+  id: z.string({ error: "ID is required" }).min(1, "ID cannot be empty")
+});
+export type ShareNoteParams = z.infer<typeof shareNoteParams>;
+
+export const patchShareNoteWithUsersBody = z.union([
   shareNoteWithSchema,
   shareNoteWithUsersSchema
 ]);
 
-export type PatchShareNoteWithUsersBody =
-  typeof patchShareNoteWithUsersBody.static;
+export type PatchShareNoteWithUsersBody = z.infer<
+  typeof patchShareNoteWithUsersBody
+>;

@@ -11,7 +11,7 @@ interface GetSharedNotesProps extends Context {
   user: User;
 }
 
-export async function getSharedNotes({ user, error }: GetSharedNotesProps) {
+export async function getSharedNotes({ user, status }: GetSharedNotesProps) {
   try {
     const noteColumns = getTableColumns(noteTable);
 
@@ -43,6 +43,6 @@ export async function getSharedNotes({ user, error }: GetSharedNotesProps) {
   } catch (err) {
     console.log("🚀 ~ getSharedNotes ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Failed to get shared notes");
+    return status(500, "Failed to get shared notes");
   }
 }

@@ -11,23 +11,23 @@ interface GetProfileProps extends Context {
   bearer: string | undefined;
 }
 
-export async function getProfile({ bearer, error }: GetProfileProps) {
-  if (!bearer) return error(401, "Unauthorized");
+export async function getProfile({ bearer, status }: GetProfileProps) {
+  if (!bearer) return status(401, "Unauthorized");
   try {
     const sessionId = await VerifyJwtAsync(bearer);
 
     if (typeof sessionId !== "string") {
-      return error(500, "Internal Server Error");
+      return status(500, "Internal Server Error");
     }
 
     const { session, user } = await lucia.validateSession(sessionId);
 
     if (!session || !user) {
-      return error(401, "Unauthorized");
+      return status(401, "Unauthorized");
     }
 
     if (user.disabled) {
-      return error(403, "Your account has been disabled");
+      return status(403, "Your account has been disabled");
     }
 
     await BgQueue.add("updateSessionLastUsedAt", {
@@ -45,6 +45,6 @@ export async function getProfile({ bearer, error }: GetProfileProps) {
   } catch (err) {
     console.log("🚀 ~ getProfile ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

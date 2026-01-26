@@ -14,7 +14,7 @@ interface SendVerificationEmailProps extends Context {
 
 export async function sendVerificationEmail({
   user,
-  error
+  status
 }: SendVerificationEmailProps) {
   try {
     const [currentUser] = await db
@@ -23,11 +23,11 @@ export async function sendVerificationEmail({
       .where(eq(userTable.id, user.id));
 
     if (!currentUser) {
-      return error("Unauthorized");
+      return status("Unauthorized");
     }
 
     if (currentUser.emailVerified) {
-      return error(400, "Email is already verified");
+      return status(400, "Email is already verified");
     }
 
     await db
@@ -45,13 +45,13 @@ export async function sendVerificationEmail({
     );
 
     if (mail.error) {
-      return error(500, "Failed to send verification code");
+      return status(500, "Failed to send verification code");
     }
 
     return { message: `Verification has been sent to ${currentUser.email}` };
   } catch (err) {
     console.error("🚀 ~ sendVerificationEmail ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

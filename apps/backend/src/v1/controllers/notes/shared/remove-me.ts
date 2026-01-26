@@ -15,7 +15,7 @@ interface RemoveSharedNoteForMeProps extends Omit<Context, "params"> {
 export async function removeSharedNoteForMe({
   user,
   params,
-  error
+  status
 }: RemoveSharedNoteForMeProps) {
   try {
     const [removedSharedNote] = await db
@@ -29,13 +29,13 @@ export async function removeSharedNoteForMe({
       .returning();
 
     if (!removedSharedNote) {
-      return error(400, "You are not allowed to remove the shared note");
+      return status(400, "You are not allowed to remove the shared note");
     }
 
     return removedSharedNote;
   } catch (err) {
     console.error("🚀 removeSharedNoteForMe ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Failed to remove from shared note");
+    return status(500, "Failed to remove from shared note");
   }
 }

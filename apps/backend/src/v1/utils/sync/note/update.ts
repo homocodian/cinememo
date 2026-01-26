@@ -1,23 +1,15 @@
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import * as z from "zod/v4";
 
 import { noteSchema } from "@/v1/validations/sync";
 
 import { ValidationError } from "../validation-error";
 
-const noteUpdateSchema = t.Intersect([
-  t.Partial(t.Omit(noteSchema, ["id", "user_id"])),
-  t.Required(t.Pick(noteSchema, ["id", "user_id"]))
-]);
+const noteUpdateSchema = noteSchema.partial().required({
+  id: true,
+  user_id: true
+});
 
-type NoteUpdate = Omit<
-  typeof noteUpdateSchema.static,
-  "created_at" | "updated_at" | "deleted_at"
-> & {
-  created_at?: Date;
-  updated_at?: Date;
-  deleted_at?: Date | null;
-};
+type NoteUpdate = z.infer<typeof noteUpdateSchema>;
 
 export function getNotesToUpdate(
   updated: Array<Record<string, unknown>> | undefined
@@ -26,7 +18,7 @@ export function getNotesToUpdate(
 
   if (updated && updated.length > 0) {
     try {
-      notesToUpdate = Value.Decode(t.Array(noteUpdateSchema), updated);
+      notesToUpdate = noteUpdateSchema.array().parse(updated);
     } catch (error) {
       throw new ValidationError("Unprocessable Content at note.updated");
     }

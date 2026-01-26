@@ -1,114 +1,130 @@
-import { t } from "elysia";
+import * as z from "zod/v4";
 
 import { deviceTypeList } from "@/db/schema/user";
 
-const deviceType = t.Union(deviceTypeList.map((value) => t.Literal(value)));
+const deviceType = z.enum(deviceTypeList);
+// type DeviceType = z.infer<typeof deviceType>;
 
-export const deviceSchema = t.Optional(
-  t.Partial(
-    t.Object({
-      type: deviceType,
-      name: t.String(),
-      model: t.String(),
-      osVersion: t.String(),
-      os: t.String()
-    })
-  )
-);
+export const deviceSchema = z
+  .object({
+    type: deviceType.meta({ error: "Device type is required" }),
+    name: z.string({ error: "Name is required" }),
+    model: z.string({ error: "Model is required" }),
+    osVersion: z.string({ error: "OS Version is required" }),
+    os: z.string({ error: "OS is required" })
+  })
+  .partial()
+  .optional();
 
-export type DeviceSchema = typeof deviceSchema.static | undefined;
+export type DeviceSchema = z.infer<typeof deviceSchema>;
 
-export const registerUserSchema = t.Object(
+export const registerUserSchema = z.object(
   {
-    fullName: t.Optional(t.String({ minLength: 3 })),
-    email: t.String({
-      minLength: 3,
-      description: "Email must of at least 3 characters"
-    }),
-    password: t.String({
-      minLength: 8,
-      description: "Password must be at least 6 characters"
-    }),
+    fullName: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z
+        .string({ error: "Name is required" })
+        .min(3, "Name must of at least 3 characters")
+        .optional()
+    ),
+    email: z
+      .string({
+        error: "Email must of at least 3 characters"
+      })
+      .min(3, "Email must of at least 3 characters"),
+    password: z
+      .string({
+        error: "Password must be at least 6 characters"
+      })
+      .min(8, "Password must be at least 6 characters"),
     device: deviceSchema
   },
   {
-    description: "Expected an email and password"
+    error: "Expected an email and password"
   }
 );
 
-export type RegisterUser = typeof registerUserSchema.static;
+export type RegisterUser = z.infer<typeof registerUserSchema>;
 
-export const loginUserSchema = t.Object(
+export const loginUserSchema = z.object(
   {
-    email: t.String({
-      description: "Email is required",
+    email: z.string({
       error: "Invalid Email"
     }),
-    password: t.String({
-      description: "Password is required",
+    password: z.string({
       error: "Password is required"
     }),
     device: deviceSchema
   },
-  { description: "Email & password are required" }
+  { error: "Email & password are required" }
 );
 
-export type LoginUser = typeof loginUserSchema.static;
+export type LoginUser = z.infer<typeof loginUserSchema>;
 
-export const passwordResetSchema = t.Object({
-  email: t.String({
-    description: "Email is required"
+export const passwordResetSchema = z.object({
+  email: z.string({
+    error: "Email is required"
   })
 });
 
-export type PasswordReset = typeof passwordResetSchema.static;
+export type PasswordReset = z.infer<typeof passwordResetSchema>;
 
-export const userSchema = t.Object({
-  id: t.Number(),
-  email: t.String({ format: "email" }),
-  emailVerified: t.Boolean(),
-  photoURL: t.Nullable(t.String()),
-  displayName: t.Nullable(t.String())
+export const userSchema = z.object({
+  id: z
+    .number({ error: "ID is required" })
+    .positive({ error: "ID must be a positive number" }),
+  email: z.email({ error: "Email is required" }),
+  emailVerified: z.boolean({ error: "Email verification status is required" }),
+  photoURL: z.string({ error: "Photo URL is required" }).nullable(),
+  displayName: z.string({ error: "Display name is required" }).nullable()
 });
 
-export type UserSchema = typeof userSchema.static;
+export type UserSchema = z.infer<typeof userSchema>;
 
-export const emailVerificationSchema = t.Object({ code: t.String() });
+export const emailVerificationSchema = z.object({
+  code: z.string({ error: "Code is required" })
+});
 
-export type EmailVerification = typeof emailVerificationSchema.static;
+export type EmailVerification = z.infer<typeof emailVerificationSchema>;
 
-export const passwordResetTokenSchema = t.Object({ password: t.String() });
+export const passwordResetTokenSchema = z.object({
+  password: z.string({ error: "Password is required" })
+});
 
-export type PasswordResetToken = typeof passwordResetTokenSchema.static;
+export type PasswordResetToken = z.infer<typeof passwordResetTokenSchema>;
 
-export const logoutSchema = t.Optional(
-  t.Object({ deviceId: t.String({ minLength: 1 }) })
-);
+export const logoutSchema = z
+  .object({ deviceId: z.string().min(1) })
+  .optional();
 
-export type LogoutSchema = typeof logoutSchema.static;
+export type LogoutSchema = z.infer<typeof logoutSchema>;
 
-export const userUpdateSchema = t.Partial(
-  t.Object({
-    displayName: t.String({ minLength: 3 }),
-    photoURL: t.String({ format: "uri" })
+export const userUpdateSchema = z
+  .object({
+    displayName: z
+      .string({ error: "Display name is required" })
+      .min(3, "Display name must be at least 3 characters"),
+    photoURL: z.url({ error: "Photo URL must be a valid URL" })
   })
-);
+  .partial();
 
-export type UserUpdateSchema = typeof userUpdateSchema.static;
+export type UserUpdateSchema = z.infer<typeof userUpdateSchema>;
 
-export const changePasswordSchema = t.Object({
-  currentPassword: t.String(),
-  newPassword: t.String()
+export const changePasswordSchema = z.object({
+  currentPassword: z.string({ error: "Current password is required" }),
+  newPassword: z
+    .string({ error: "New password is required" })
+    .min(8, "New password must be at least 8 characters")
 });
 
-export type ChangePasswordSchema = typeof changePasswordSchema.static;
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;
 
-export const oAuthQuerySchema = t.Partial(
-  t.Object({
+export const oAuthQuerySchema = z
+  .object({
     device: deviceSchema,
-    redirect: t.String({ format: "uri" }),
-    callback: t.String({ format: "uri" })
+    redirect: z.url({ error: "Redirect URL is required" }),
+    callback: z.url({ error: "Callback URL is required" })
   })
-);
+  .partial();
 
-export type OAuthQuerySchema = typeof oAuthQuerySchema.static;
+export type OAuthQuerySchema = z.infer<typeof oAuthQuerySchema>;

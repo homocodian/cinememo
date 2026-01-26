@@ -1,5 +1,6 @@
 import bearer from "@elysiajs/bearer";
 import Elysia from "elysia";
+import { ip } from "elysia-ip";
 import { rateLimit } from "elysia-rate-limit";
 
 import { rateLimiterkeyGenerator } from "@/libs/rate-limiter-key-generator";
@@ -24,13 +25,12 @@ import { passwordResetToken } from "../controllers/user/password-reset-token";
 import { getProfile } from "../controllers/user/profile";
 import { registerUser } from "../controllers/user/register";
 import { sendVerificationEmail } from "../controllers/user/send-verification-email";
-import { errorHandlerInstance } from "../utils/error-handler";
 import { deriveUser } from "../utils/note/derive-user";
 import { oAuthBodySchema } from "../validations/auth";
 
 export const authRoute = new Elysia({ prefix: "/auth" })
-  .use(errorHandlerInstance)
   .use(bearer())
+  .use(ip())
   .use(
     rateLimit({
       max: 10,
@@ -53,7 +53,6 @@ export const authRoute = new Elysia({ prefix: "/auth" })
 
 export const passwordResetRoute = new Elysia({ prefix: "/auth" })
   .use(bearer())
-  .use(errorHandlerInstance)
   .use(
     rateLimit({
       scoping: "scoped",
@@ -69,7 +68,6 @@ export const passwordResetRoute = new Elysia({ prefix: "/auth" })
 
 export const emailVerificationRoute = new Elysia({ prefix: "/auth" })
   .use(bearer())
-  .use(errorHandlerInstance)
   .derive(deriveUser)
   .use(
     rateLimit({
@@ -85,7 +83,6 @@ export const emailVerificationRoute = new Elysia({ prefix: "/auth" })
 
 export const getVerificationCodeRoute = new Elysia({ prefix: "/auth" })
   .use(bearer())
-  .use(errorHandlerInstance)
   .derive(deriveUser)
   .use(
     rateLimit({

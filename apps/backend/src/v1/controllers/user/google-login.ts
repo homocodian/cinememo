@@ -21,9 +21,10 @@ export async function googleLogin({
   const clientIP =
     request.headers.get("x-forwarded-for")?.split(",")?.[0] || ip;
 
-  const url = await google.createAuthorizationURL(state, codeVerifier, {
-    scopes: ["email", "profile"]
-  });
+  const url = google.createAuthorizationURL(state, codeVerifier, [
+    "email",
+    "profile"
+  ]);
 
   cookie?.google_oauth_code_verifier?.set({
     value: codeVerifier,

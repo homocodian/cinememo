@@ -21,17 +21,17 @@ interface PasswordResetTokenProps extends Omit<Context, "params"> {
 
 export async function passwordResetToken({
   body,
-  error,
+  status,
   params
 }: PasswordResetTokenProps) {
   if (!validatePassword(body.password)) {
-    return error(400, "Invalid password");
+    return status(400, "Invalid password");
   }
 
   const verificationToken = params?.token;
 
   if (!verificationToken) {
-    return error(400, "Invalid verification token");
+    return status(400, "Invalid verification token");
   }
 
   const tokenHash = encodeHex(
@@ -50,7 +50,7 @@ export async function passwordResetToken({
   }
 
   if (!token || !isWithinExpirationDate(token.expiresAt)) {
-    return error(400, "Invalid or expired verification token");
+    return status(400, "Invalid or expired verification token");
   }
 
   await lucia.invalidateUserSessions(token.userId);
@@ -86,6 +86,9 @@ export async function passwordResetToken({
   } catch (err) {
     console.log("🚀 ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Failed to update your password, please try again later");
+    return status(
+      500,
+      "Failed to update your password, please try again later"
+    );
   }
 }

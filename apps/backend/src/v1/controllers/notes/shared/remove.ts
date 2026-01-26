@@ -20,7 +20,7 @@ interface ShareNoteProps extends Omit<Context, "params"> {
 export async function removeUserFromSharedNote({
   body,
   user,
-  error,
+  status,
   params
 }: ShareNoteProps) {
   try {
@@ -30,7 +30,7 @@ export async function removeUserFromSharedNote({
       .where(and(eq(noteTable.id, params.id), eq(noteTable.userId, user.id)));
 
     if (!note) {
-      return error(401, "You are not allowed to modify this resource");
+      return status(401, "You are not allowed to modify this resource");
     }
 
     if (!Array.isArray(body)) {
@@ -40,7 +40,7 @@ export async function removeUserFromSharedNote({
         .where(eq(userTable.email, body));
 
       if (!userToRemove) {
-        return error(404, "User(s) not found to a remove from shared note");
+        return status(404, "User(s) not found to a remove from shared note");
       }
 
       await db
@@ -58,7 +58,7 @@ export async function removeUserFromSharedNote({
         .where(inArray(userTable.email, body));
 
       if (!usersToRemove.length) {
-        return error(404, "User(s) not found to a remove from shared note");
+        return status(404, "User(s) not found to a remove from shared note");
       }
 
       await db.delete(notesToUsersTable).where(
@@ -76,6 +76,6 @@ export async function removeUserFromSharedNote({
   } catch (err) {
     console.error("🚀 ~ removeUserFromSharedNote :", err);
     Sentry.captureException(err);
-    return error(500, "Failed to remove user from shared note");
+    return status(500, "Failed to remove user from shared note");
   }
 }

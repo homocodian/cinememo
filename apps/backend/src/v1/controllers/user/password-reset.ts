@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/bun";
 import { eq } from "drizzle-orm";
-import { Context, error } from "elysia";
+import { Context } from "elysia";
 
 import { db } from "@/db";
 import { userTable } from "@/db/schema/user";
@@ -36,7 +36,7 @@ export async function passwordReset(ctx: PasswordResetProps) {
     );
 
     if (error) {
-      return ctx.error(
+      return ctx.status(
         500,
         "Unable to send reset link, please try again later"
       );
@@ -46,6 +46,6 @@ export async function passwordReset(ctx: PasswordResetProps) {
   } catch (err) {
     console.error("🚀 ~ passwordReset ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return ctx.status(500, "Internal Server Error");
   }
 }

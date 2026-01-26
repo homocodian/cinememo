@@ -1,5 +1,3 @@
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
 import { User } from "lucia";
 
 import { CreateNote, NoteCategory } from "@/db/schema/note";
@@ -15,8 +13,10 @@ export function getNotesToCreate(
 
   if (created && created.length > 0) {
     try {
-      notesToCreate = Value.Decode(t.Array(noteSchema), created).map(
-        (note) => ({
+      notesToCreate = noteSchema
+        .array()
+        .parse(created)
+        .map((note) => ({
           id: note.id,
           userId: user.id,
           text: note.text,
@@ -24,8 +24,7 @@ export function getNotesToCreate(
           category: note.category as NoteCategory,
           createdAt: note.created_at,
           updatedAt: note.updated_at
-        })
-      );
+        }));
     } catch (error) {
       console.log("🚀 ~ error:", error);
       throw new ValidationError("Unprocessable Content at note.created");

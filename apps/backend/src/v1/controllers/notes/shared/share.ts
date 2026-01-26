@@ -17,7 +17,7 @@ interface ShareNoteProps extends Omit<Context, "params"> {
   params: Readonly<ShareNoteParams>;
 }
 
-export async function shareNote({ body, error, params }: ShareNoteProps) {
+export async function shareNote({ body, status, params }: ShareNoteProps) {
   try {
     const users = await db
       .selectDistinct({ id: userTable.id })
@@ -25,7 +25,7 @@ export async function shareNote({ body, error, params }: ShareNoteProps) {
       .where(inArray(userTable.email, body));
 
     if (!users.length) {
-      return error(404, "User(s) not found to a share note with");
+      return status(404, "User(s) not found to a share note with");
     }
 
     const createSharedWith = users.map((user) => ({
@@ -43,6 +43,6 @@ export async function shareNote({ body, error, params }: ShareNoteProps) {
   } catch (err) {
     console.log("🚀 ~ shareNote ~ err:", err);
     Setnry.captureException(err);
-    return error(500, "Failed to share the note");
+    return status(500, "Failed to share the note");
   }
 }

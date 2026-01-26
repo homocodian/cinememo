@@ -13,7 +13,7 @@ interface CreateFCMTokenProps extends Context {
 
 export async function createFCMToken({
   user,
-  error,
+  status,
   body
 }: CreateFCMTokenProps) {
   try {
@@ -21,11 +21,11 @@ export async function createFCMToken({
       .insert(FCMTokenTable)
       .values({ ...body, userId: user.id, sessionId: user.session.id })
       .returning();
-    if (!token) return error(500, "Internal Server Error");
+    if (!token) return status(500, "Internal Server Error");
     return token;
   } catch (err) {
     console.error("🚀 ~ createFCMToken ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

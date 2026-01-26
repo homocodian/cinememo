@@ -14,10 +14,14 @@ interface RevokeDeviceProps extends Omit<Context, "params"> {
   };
 }
 
-export async function revokeDevice({ user, params, error }: RevokeDeviceProps) {
+export async function revokeDevice({
+  user,
+  params,
+  status
+}: RevokeDeviceProps) {
   const deviceId = +params.id;
   if (!deviceId || isNaN(deviceId)) {
-    return error(400, "Invalid Device Id");
+    return status(400, "Invalid Device Id");
   }
 
   try {
@@ -29,7 +33,7 @@ export async function revokeDevice({ user, params, error }: RevokeDeviceProps) {
       );
 
     if (!device) {
-      return error(404, "Device Not Found");
+      return status(404, "Device Not Found");
     }
 
     await lucia.invalidateSession(device.sessionId);
@@ -37,6 +41,6 @@ export async function revokeDevice({ user, params, error }: RevokeDeviceProps) {
   } catch (err) {
     console.error("🚀 ~ revokeDevice ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

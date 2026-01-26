@@ -49,11 +49,7 @@ export const noteTable = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
   },
-  (t) => {
-    return {
-      userIdx: index("user_idx").on(t.userId)
-    };
-  }
+  (t) => [index("user_idx").on(t.userId)]
 );
 
 export type Note = InferSelectModel<typeof noteTable>;

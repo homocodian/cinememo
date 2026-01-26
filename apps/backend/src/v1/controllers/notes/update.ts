@@ -16,7 +16,7 @@ interface UpdateNoteProps extends Omit<Context, "params"> {
 export async function updateNote({
   user,
   body,
-  error,
+  status,
   params
 }: UpdateNoteProps) {
   try {
@@ -27,13 +27,13 @@ export async function updateNote({
       .returning();
 
     if (!note) {
-      return error(400, "Failed to update note");
+      return status(400, "Failed to update note");
     }
 
     return note;
   } catch (err) {
     console.log("🚀 ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

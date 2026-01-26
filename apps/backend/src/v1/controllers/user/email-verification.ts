@@ -15,7 +15,7 @@ interface EmailVerificationProps extends Context {
 
 export async function emailVerification({
   user,
-  error,
+  status,
   body
 }: EmailVerificationProps) {
   try {
@@ -26,7 +26,7 @@ export async function emailVerification({
     );
 
     if (!validCode) {
-      return error(400, "Invalid verification code");
+      return status(400, "Invalid verification code");
     }
 
     await db
@@ -38,6 +38,6 @@ export async function emailVerification({
   } catch (err) {
     console.error("🚀 ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

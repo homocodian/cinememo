@@ -12,14 +12,14 @@ interface ShareNoteProps extends Omit<Context, "params"> {
   params: Readonly<ShareNoteParams>;
 }
 
-export async function unshareNote({ user, error, params }: ShareNoteProps) {
+export async function unshareNote({ user, status, params }: ShareNoteProps) {
   const [note] = await db
     .select()
     .from(noteTable)
     .where(and(eq(noteTable.id, params.id), eq(noteTable.userId, user.id)));
 
   if (!note) {
-    return error(401, "You are not allowed to modify this resource");
+    return status(401, "You are not allowed to modify this resource");
   }
 
   try {
@@ -29,13 +29,13 @@ export async function unshareNote({ user, error, params }: ShareNoteProps) {
       .returning();
 
     if (!unshared) {
-      return error(400, "Failed to unshare note");
+      return status(400, "Failed to unshare note");
     }
 
     return note;
   } catch (err) {
     console.error("🚀 ~ unshareNote ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Failed to unshare the note");
+    return status(500, "Failed to unshare the note");
   }
 }

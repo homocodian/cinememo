@@ -1,8 +1,7 @@
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import * as z from "zod/v4";
 
-const emailSchema = t.String({ format: "email" });
+const emailSchema = z.email();
 
 export function isValidEmail(email: string) {
-  return Value.Check(emailSchema, email);
+  return emailSchema.safeParse(email).success;
 }

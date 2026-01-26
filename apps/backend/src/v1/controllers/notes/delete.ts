@@ -12,7 +12,7 @@ interface DeleteNoteProps extends Omit<Context, "params"> {
   params: Readonly<UpdateNoteParamsSchema>;
 }
 
-export async function deleteNote({ user, error, params }: DeleteNoteProps) {
+export async function deleteNote({ user, status, params }: DeleteNoteProps) {
   try {
     const [note] = await db
       .update(noteTable)
@@ -21,13 +21,13 @@ export async function deleteNote({ user, error, params }: DeleteNoteProps) {
       .returning();
 
     if (!note) {
-      return error(400, "Failed to delete the note");
+      return status(400, "Failed to delete the note");
     }
 
     return note;
   } catch (err) {
     console.log("🚀 ~ deleteNote ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Server error : Failed to delete the note");
+    return status(500, "Server error : Failed to delete the note");
   }
 }

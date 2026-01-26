@@ -11,7 +11,7 @@ interface CreateNoteProps extends Context {
   body: CreateNote;
 }
 
-export async function createNote({ user, body, error }: CreateNoteProps) {
+export async function createNote({ user, body, status }: CreateNoteProps) {
   try {
     const [note] = await db
       .insert(noteTable)
@@ -19,13 +19,13 @@ export async function createNote({ user, body, error }: CreateNoteProps) {
       .returning();
 
     if (!note) {
-      return error(400, "Failed to create note");
+      return status(400, "Failed to create note");
     }
 
     return note;
   } catch (err) {
     console.log("🚀 ~ createNote ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

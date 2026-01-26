@@ -15,18 +15,18 @@ interface LoginUserProps extends Context {
   ip?: string;
 }
 
-export async function loginUser({ body, error, request, ip }: LoginUserProps) {
+export async function loginUser({ body, status, request, ip }: LoginUserProps) {
   const [user] = await db
     .select()
     .from(userTable)
     .where(eq(userTable.email, body.email));
 
   if (!user || !user.hashedPassword) {
-    return error(400, "Invalid email or password");
+    return status(400, "Invalid email or password");
   }
 
   if (user.disabled) {
-    return error(403, "Your account has been disabled");
+    return status(403, "Your account has been disabled");
   }
 
   const validPassword = await Bun.password.verify(
@@ -35,7 +35,7 @@ export async function loginUser({ body, error, request, ip }: LoginUserProps) {
   );
 
   if (!validPassword) {
-    return error(400, "Invalid email or password");
+    return status(400, "Invalid email or password");
   }
 
   const session = await lucia.createSession(user.id, {});
@@ -70,6 +70,6 @@ export async function loginUser({ body, error, request, ip }: LoginUserProps) {
   } catch (err) {
     console.error("🚀 ~ loginUser ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

@@ -7,10 +7,12 @@ import { ip } from "elysia-ip";
 
 import { env } from "./env";
 import { v1Routes } from "./v1";
+import { rootErrorHandler } from "./v1/utils/root-error-handler";
 
 const app = new Elysia({ prefix: "/api" })
   .use(cors())
   .use(ip())
+  .onError(rootErrorHandler)
   .use(v1Routes)
   .get("/", () => {
     return {

@@ -30,4 +30,4 @@ export const userRoute = new Elysia({ prefix: "/user" })
   .patch("/profile", updateUser, { body: userUpdateSchema })
   .patch("/change-password", changePassword, { body: changePasswordSchema })
   .get("/devices", getDevices)
-  .delete("/devices/:id", revokeDevice);
+  .delete("/devices/:id", revokeDevice, {});

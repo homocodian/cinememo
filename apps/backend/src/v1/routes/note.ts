@@ -46,7 +46,7 @@ export const noteRoute = new Elysia({ prefix: "/notes" })
   .delete("/:id", deleteNote, {
     params: updateNoteParamsSchema
   })
-  .get("/:id/share", getSharedWithByNoteId)
+  .get("/:id/share", getSharedWithByNoteId, {})
   .post("/:id/share", shareNote, {
     body: shareNoteWithUsersSchema,
     params: shareNoteParams

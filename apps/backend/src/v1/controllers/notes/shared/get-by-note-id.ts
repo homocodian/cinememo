@@ -14,7 +14,7 @@ interface GetSharedWithByNotesIdProps extends Omit<Context, "params"> {
 
 export async function getSharedWithByNoteId({
   user,
-  error,
+  status,
   params
 }: GetSharedWithByNotesIdProps) {
   try {
@@ -31,7 +31,7 @@ export async function getSharedWithByNoteId({
       .limit(1);
 
     if (!note) {
-      return error(
+      return status(
         403,
         "You are not allowed to view the contents of this resource"
       );
@@ -51,6 +51,6 @@ export async function getSharedWithByNoteId({
   } catch (err) {
     console.log("🚀 ~ getSharedWithByNoteId ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Failed to get shared with by note id");
+    return status(500, "Failed to get shared with by note id");
   }
 }

@@ -1,17 +1,17 @@
-import { t } from "elysia";
+import * as z from "zod/v4";
 
 import { deviceSchema, userSchema } from "./user";
 
-export const oAuthUserScheme = t.Composite([
-  t.Omit(userSchema, ["id"]),
-  t.Object({ id: t.String() })
-]);
+export const oAuthUserScheme = z.object({
+  ...userSchema.shape,
+  id: z.string()
+});
 
-export type OAuthUserSchema = typeof oAuthUserScheme.static;
+export type OAuthUserSchema = z.infer<typeof oAuthUserScheme>;
 
-export const oAuthBodySchema = t.Object({
+export const oAuthBodySchema = z.object({
   user: oAuthUserScheme,
   device: deviceSchema
 });
 
-export type OAuthBodySchema = typeof oAuthBodySchema.static;
+export type OAuthBodySchema = z.infer<typeof oAuthBodySchema>;

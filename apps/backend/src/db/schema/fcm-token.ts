@@ -15,10 +15,10 @@ export const FCMTokenTable = pgTable(
     deviceId: text("device_id").notNull(),
     token: text("token").notNull()
   },
-  (t) => ({
-    pk: primaryKey({ columns: [t.userId, t.deviceId] }),
-    fcmTokenSessionIdx: index("fcm_token_session_idx").on(t.sessionId)
-  })
+  (t) => [
+    primaryKey({ columns: [t.userId, t.deviceId] }),
+    index("fcm_token_session_idx").on(t.sessionId)
+  ]
 );
 
 export type FCMToken = InferSelectModel<typeof FCMTokenTable>;

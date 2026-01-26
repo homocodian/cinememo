@@ -1,9 +1,8 @@
 import * as Sentry from "@sentry/bun";
-import { Value } from "@sinclair/typebox/value";
 import { OAuth2RequestError } from "arctic";
 import { and, eq } from "drizzle-orm";
 import { Context } from "elysia";
-import { z } from "zod";
+import * as z from "zod";
 
 import { db } from "@/db";
 import { UserTable, oauthAccountTable, userTable } from "@/db/schema/user";
@@ -14,13 +13,20 @@ import { SaveDeviceProps } from "@/libs/background/save-device";
 import { signJwtAsync } from "@/libs/jwt";
 import { parseJson } from "@/libs/parse-json";
 import { Prettify } from "@/types/prettify";
-import { DeviceSchema, UserSchema, deviceSchema } from "@/v1/validations/user";
+import {
+  DeviceSchema,
+  OAuthQuerySchema,
+  UserSchema,
+  deviceSchema
+} from "@/v1/validations/user";
 
-interface GoogleCallbackProps extends Context {}
+interface GoogleCallbackProps extends Omit<Context, "query"> {
+  query: OAuthQuerySchema;
+}
 
 const googleUserSchema = z.object({
   id: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   verified_email: z.boolean().optional().default(false),
   name: z.string().optional(),
   picture: z.string().optional()
@@ -31,15 +37,17 @@ export async function googleCallback({
   request,
   redirect
 }: GoogleCallbackProps) {
-  const codeVerifierCookie = cookie?.google_oauth_code_verifier?.value ?? null;
+  const codeVerifierCookie: string | null =
+    (cookie?.google_oauth_code_verifier?.value as string) ?? null;
   const stateCookie = cookie?.google_oauth_state?.value ?? null;
   const deviceCookie = cookie?.device?.value ?? null;
   // request origin uri
   const callbackURL = cookie?.callback?.value ?? env.CLIENT_URL + "/login";
-  const redirectURL =
-    cookie?.redirect?.value ?? env.CLIENT_URL + "/login/google/callback";
+  const redirectURL: string =
+    (cookie?.redirect?.value as string) ??
+    env.CLIENT_URL + "/login/google/callback";
   // request origin ip
-  const ip = cookie.ip?.value;
+  const ip: string | null = cookie.ip?.value as string;
 
   cookie?.google_oauth_state?.remove();
   cookie?.google_oauth_code_verifier?.remove();
@@ -167,7 +175,7 @@ export async function googleCallback({
 
     const sessionToken = await signJwtAsync(session.id);
 
-    const parsedDevice = Value.Check(deviceSchema, jsonDevice.data);
+    const parsedDevice = deviceSchema.parse(jsonDevice.data);
 
     await BgQueue.add("saveDevice", {
       ip,

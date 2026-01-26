@@ -12,7 +12,7 @@ interface UpdateUserProps extends Context {
   body: UserUpdateSchema;
 }
 
-export async function updateUser({ user, error, body }: UpdateUserProps) {
+export async function updateUser({ user, status, body }: UpdateUserProps) {
   try {
     const [updatedUser] = await db
       .update(userTable)
@@ -21,7 +21,7 @@ export async function updateUser({ user, error, body }: UpdateUserProps) {
       .returning();
 
     if (!updatedUser) {
-      return error(400, "Failed to update user");
+      return status(400, "Failed to update user");
     }
 
     return {
@@ -34,6 +34,6 @@ export async function updateUser({ user, error, body }: UpdateUserProps) {
   } catch (err) {
     console.error("🚀 ~ updateUser ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

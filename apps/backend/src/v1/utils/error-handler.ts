@@ -5,13 +5,12 @@ export function errorHandlerInstance(app: Elysia) {
     console.log("🚀 ~ errorHandlerInstance ~  error, code:", error, code);
 
     if (code === "VALIDATION") {
-      return error.all[0]?.schema?.description ??
-        error.message.includes("supabase")
+      return (error.all[0]?.summary ?? error.message.includes("supabase"))
         ? "Something went wrong"
         : error.message;
     }
 
-    if (error.message) {
+    if (error instanceof Error) {
       return error.message.includes("supabase")
         ? "Something went wrong"
         : error.message;

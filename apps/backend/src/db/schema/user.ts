@@ -56,9 +56,7 @@ export const userTable = pgTable(
       .defaultNow()
       .$onUpdate(() => new Date())
   },
-  (t) => ({
-    emailIdx: index("email_idx").on(t.email)
-  })
+  (t) => [index("email_idx").on(t.email)]
 );
 
 export type UserTable = InferSelectModel<typeof userTable>;

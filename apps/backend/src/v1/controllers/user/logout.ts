@@ -13,18 +13,18 @@ interface LogoutProps extends Context {
   body: LogoutSchema;
 }
 
-export async function logout({ bearer, error, body }: LogoutProps) {
-  if (!bearer) return error(401, "Unauthorized");
+export async function logout({ bearer, status, body }: LogoutProps) {
+  if (!bearer) return status(401, "Unauthorized");
   try {
     const sessionId = await VerifyJwtAsync(bearer);
 
     if (typeof sessionId !== "string") {
-      return error(500, "Internal Server Error");
+      return status(500, "Internal Server Error");
     }
 
     const { user } = await lucia.validateSession(sessionId);
 
-    if (!user) return error(401, "Unauthorized");
+    if (!user) return status(401, "Unauthorized");
 
     await lucia.invalidateSession(sessionId);
 
@@ -43,22 +43,22 @@ export async function logout({ bearer, error, body }: LogoutProps) {
   } catch (err) {
     console.error("🚀 ~ logout ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }
 
-export async function logoutAll({ bearer, error }: LogoutProps) {
-  if (!bearer) return error(401, "Unauthorized");
+export async function logoutAll({ bearer, status }: Omit<LogoutProps, "body">) {
+  if (!bearer) return status(401, "Unauthorized");
   try {
     const sessionId = await VerifyJwtAsync(bearer);
 
     if (typeof sessionId !== "string") {
-      return error(500, "Internal Server Error");
+      return status(500, "Internal Server Error");
     }
 
     const { user } = await lucia.validateSession(sessionId);
 
-    if (!user) return error(401, "Unauthorized");
+    if (!user) return status(401, "Unauthorized");
 
     await lucia.invalidateUserSessions(user.id);
     await db.delete(FCMTokenTable).where(eq(FCMTokenTable.userId, user.id));
@@ -66,6 +66,6 @@ export async function logoutAll({ bearer, error }: LogoutProps) {
   } catch (err) {
     console.error("🚀 ~ logoutAll ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

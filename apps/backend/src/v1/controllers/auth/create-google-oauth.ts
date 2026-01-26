@@ -20,7 +20,7 @@ interface CreateGoogleOAuthProps extends Context {
 export async function createGoogleOAuth({
   ip,
   body,
-  error,
+  status,
   request
 }: CreateGoogleOAuthProps) {
   try {
@@ -83,7 +83,7 @@ export async function createGoogleOAuth({
     });
 
     if (!user) {
-      return error(500, dbError);
+      return status(500, dbError);
     }
 
     const session = await lucia.createSession(user.id, {});
@@ -113,10 +113,10 @@ export async function createGoogleOAuth({
     return sessionUser;
   } catch (err) {
     if ((err as any)?.code === "23505") {
-      return error(400, "User already exists");
+      return status(400, "User already exists");
     }
 
-    return error("Internal Server Error");
+    return status("Internal Server Error");
   }
 }
 

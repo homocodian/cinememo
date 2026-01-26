@@ -1,24 +1,23 @@
-import { Value } from "@sinclair/typebox/value";
-import { t } from "elysia";
+import * as z from "zod/v4";
 
-const server = t.Object({
-  PORT: t.Optional(t.String({ minLength: 1 })),
-  DATABASE_URL: t.String({ minLength: 1 }),
-  TOKEN_SECRET: t.String({ minLength: 1 }),
-  ALGORITHM: t.String({ minLength: 1 }),
-  HOSTNAME: t.Optional(t.String({ minLength: 1 })),
-  CLIENT_URL: t.String({ minLength: 1, format: "uri" }),
-  RESEND_API_KEY: t.String({ minLength: 1 }),
-  APP_NAME: t.String({ minLength: 1 }),
-  ADMIN_EMAIL: t.String({ minLength: 1, format: "email" }),
-  REDIS_URL: t.String({ minLength: 1 }),
-  IPINFO_TOKEN: t.String({ minLength: 1 }),
-  GOOGLE_CLIENT_ID: t.String({ minLength: 1 }),
-  GOOGLE_CLIENT_SECRET: t.String({ minLength: 1 }),
-  GOOGLE_REDIRECT_URI: t.String({ minLength: 1 })
+const server = z.object({
+  PORT: z.string().min(1).optional(),
+  DATABASE_URL: z.string().min(1),
+  TOKEN_SECRET: z.string().min(1),
+  ALGORITHM: z.string().min(1),
+  HOSTNAME: z.string().min(1).optional(),
+  CLIENT_URL: z.url(),
+  RESEND_API_KEY: z.string().min(1),
+  APP_NAME: z.string().min(1),
+  ADMIN_EMAIL: z.email(),
+  REDIS_URL: z.string().min(1),
+  IPINFO_TOKEN: z.string().min(1),
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+  GOOGLE_REDIRECT_URI: z.string().min(1)
 });
 
-type ServerEnv = typeof server.static;
+type ServerEnv = z.infer<typeof server>;
 
 const processEnv = {
   PORT: process.env.PORT,
@@ -45,16 +44,12 @@ let defaultEnv = process.env;
 if (!!process.env.SKIP_ENV_VALIDATION == false) {
   const isServer = typeof window === "undefined";
 
-  let parsed = Value.Check(server, processEnv);
+  let parsed = server.safeParse(processEnv);
 
-  if (parsed === false) {
+  if (parsed.success === false) {
     console.error(
-      "❌ Invalid environment variables:",
-      [...Value.Errors(server, processEnv)].map((error) => ({
-        path: error.path,
-        value: error.value,
-        message: error.message
-      }))
+      "❌ Invalid environment variables:\n",
+      z.prettifyError(parsed.error)
     );
     process.exit(1);
   }

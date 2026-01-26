@@ -1,24 +1,24 @@
 {
   "name": "cinememo",
-  "private": true,
   "version": "0.0.0",
   "author": "homocodian",
-  "workspaces": [
-    "apps/*"
-  ],
-  "scripts": {
-    "dev": "bun --filter './apps/*' dev",
-    "dev-server": "bun --filter './apps/backend' dev",
-    "dev-web": "bun --filter './apps/web' dev",
-    "dev-server-web": "bun --filter './apps/backend' --filter './apps/web' dev",
-    "clean-project": "bun --filter '*' clean",
-    "clean-apps": "bun --filter './apps/*' clean"
-  },
+  "private": true,
   "resolutions": {
     "@babel/core": "^7.26.8",
     "@babel/preset-env": "^7.26.8",
     "@babel/traverse": "^7.26.8",
     "@babel/types": "^7.26.8",
     "@babel/generator": "^7.26.8"
-  }
+  },
+  "scripts": {
+    "dev": "bun --filter './apps/*' dev",
+    "dev-server": "bun --elide-lines=0 --filter './apps/backend' dev",
+    "dev-web": "bun --filter './apps/web' dev",
+    "dev-server-web": "bun --elide-lines=0 --filter './apps/backend' --filter './apps/web' dev",
+    "clean-project": "bun --filter '*' clean",
+    "clean-apps": "bun --filter './apps/*' clean"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
 }

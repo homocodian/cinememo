@@ -24,7 +24,7 @@ export async function pushChanges({
   user,
   body,
   query,
-  error
+  status
 }: PushChangesProps) {
   try {
     const notesToCreate = getNotesToCreate(body.note?.created, user);
@@ -121,16 +121,16 @@ export async function pushChanges({
     console.log("🚀 push changes ~ err:", err);
     Sentry.captureException(err);
 
-    if (err instanceof ValidationError) return error(422, err.message);
+    if (err instanceof ValidationError) return status(422, err.message);
 
     if (err instanceof Error && err?.message === "Forbidden") {
-      return error(403, "Forbidden");
+      return status(403, "Forbidden");
     }
 
     if (err instanceof Error && err?.message === "Not Found") {
-      return error(404, "Not Found");
+      return status(404, "Not Found");
     }
 
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

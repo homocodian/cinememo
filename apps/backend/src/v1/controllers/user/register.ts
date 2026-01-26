@@ -6,7 +6,7 @@ import { userTable } from "@/db/schema/user";
 import { lucia } from "@/libs/auth";
 import { BgQueue } from "@/libs/background-worker";
 import { type SaveDeviceProps } from "@/libs/background/save-device";
-import { type SendVerificationCodeProps } from "@/libs/background/send-verification-code";
+// import { type SendVerificationCodeProps } from "@/libs/background/send-verification-code";
 import { JwtError, signJwtAsync } from "@/libs/jwt";
 import { validatePassword } from "@/libs/password-validation";
 import { isValidEmail } from "@/v1/validations/email";
@@ -19,17 +19,17 @@ interface RegisterUserProps extends Context {
 
 export async function registerUser({
   body,
-  error,
+  status,
   ip,
   request
 }: RegisterUserProps) {
   if (!isValidEmail(body.email)) {
-    return error(400, "Invalid email");
+    return status(400, "Invalid email");
   }
-  const validatedPassword = validatePassword(body.password);
 
+  const validatedPassword = validatePassword(body.password);
   if (!validatedPassword.ok) {
-    return error(400, validatedPassword.error);
+    return status(400, validatedPassword.error);
   }
 
   const hashedPassword = await Bun.password.hash(body.password);
@@ -51,20 +51,20 @@ export async function registerUser({
       });
 
     if (!user) {
-      return error(500, "Failed to create user");
+      return status(500, "Failed to create user");
     }
 
     const session = await lucia.createSession(user.id, {});
     const sessionToken = await signJwtAsync(session.id);
 
     await BgQueue.addBulk([
-      {
-        name: "sendVerificationCode",
-        data: {
-          userId: user.id,
-          userEmail: user.email
-        } satisfies SendVerificationCodeProps
-      },
+      // {
+      //   name: "sendVerificationCode",
+      //   data: {
+      //     userId: user.id,
+      //     userEmail: user.email
+      //   } satisfies SendVerificationCodeProps
+      // },
       {
         name: "saveDevice",
         data: {
@@ -90,16 +90,20 @@ export async function registerUser({
     } satisfies UserSchema & { sessionToken: string };
   } catch (err) {
     console.log("🚀 ~ registerUser ~ err:", err);
+
     Sentry.captureException(err);
 
-    if (error instanceof JwtError) {
-      return error(500, "Failed to create session");
+    if (err instanceof JwtError) {
+      return status(500, "Failed to create session");
     }
 
-    if ((err as any)?.code === "23505") {
-      return error(400, "Email already exists.");
+    if (
+      (err as any)?.code === "23505" ||
+      (err as any)?.cause?.errno === "23505"
+    ) {
+      return status(400, "Email already exists.");
     }
 
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

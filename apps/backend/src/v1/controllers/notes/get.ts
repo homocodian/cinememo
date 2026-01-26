@@ -28,7 +28,7 @@ interface DBNote extends Note {
   } | null;
 }
 
-export async function getNotes({ user, query, error }: GetNotesProps) {
+export async function getNotes({ user, query, status }: GetNotesProps) {
   const category = query?.category
     ? allowedCategories.includes(query.category as NoteCategory)
       ? (query.category as NoteCategory)
@@ -64,7 +64,7 @@ export async function getNotes({ user, query, error }: GetNotesProps) {
   } catch (err) {
     console.log("🚀 ~ getNotes ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Failed to get notes");
+    return status(500, "Failed to get notes");
   }
 }
 

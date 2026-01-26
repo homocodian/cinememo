@@ -1,103 +1,76 @@
-import { t } from "elysia";
+import * as z from "zod/v4";
 
-// import { noteCategory } from "@/db/schema/note";
-
-// const StringEnum = <T extends Readonly<string[]>>(values: T) =>
-//   t.Unsafe<T[number]>({
-//     type: "string",
-//     enum: values
-//   });
-
-export const noteSchema = t.Object({
-  id: t.String(),
-  text: t.String(),
-  category: t.Optional(t.String()),
-  is_complete: t.Optional(t.Boolean()),
-  created_at: t
-    .Transform(t.Numeric())
-    .Decode((v) => new Date(v))
-    .Encode((v) => v.getTime()),
-  updated_at: t
-    .Transform(t.Numeric())
-    .Decode((v) => new Date(v))
-    .Encode((v) => v.getTime()),
-  deleted_at: t.Optional(
-    t.Nullable(
-      t
-        .Transform(t.Numeric())
-        .Decode((v) => new Date(v))
-        .Encode((v) => v.getTime())
-    )
-  ),
-  user_id: t.Numeric()
+const dateSchema = z.object({
+  created_at: z
+    .union([z.string(), z.number()], { error: "Invalid date format" })
+    .transform((v) => new Date(v)),
+  updated_at: z
+    .union([z.string(), z.number()], { error: "Invalid date format" })
+    .transform((v) => new Date(v)),
+  deleted_at: z
+    .union([z.string(), z.number()], { error: "Invalid date format" })
+    .transform((v) => new Date(v))
+    .nullish()
 });
 
-export type NoteSchema = typeof noteSchema.static;
-
-export const sharedWithSchema = t.Object({
-  note_id: t.String(),
-  user_email: t.String({ format: "email" }),
-  created_at: t
-    .Transform(t.Numeric())
-    .Decode((v) => new Date(v))
-    .Encode((v) => v.getTime()),
-  updated_at: t
-    .Transform(t.Numeric())
-    .Decode((v) => new Date(v))
-    .Encode((v) => v.getTime()),
-  deleted_at: t.Optional(
-    t.Nullable(
-      t
-        .Transform(t.Numeric())
-        .Decode((v) => new Date(v))
-        .Encode((v) => v.getTime())
-    )
-  )
+export const noteSchema = z.object({
+  ...dateSchema.shape,
+  id: z.string({ error: "ID is required" }),
+  text: z.string({ error: "Text is required" }),
+  category: z.string({ error: "Category must be a string" }).optional(),
+  is_complete: z.boolean({ error: "is_complete must be a boolean" }).optional(),
+  user_id: z.number({ error: "User ID is required" })
 });
 
-export type SharedWithSchema = typeof sharedWithSchema.static;
+export type NoteSchema = z.infer<typeof noteSchema>;
 
-export const changesSchema = t.Record(
-  t.String(),
-  t.Object({
-    created: t.Array(t.Record(t.String(), t.Any())),
-    updated: t.Array(t.Record(t.String(), t.Any())),
-    deleted: t.Array(t.String())
+export const sharedWithSchema = z.object({
+  ...dateSchema.shape,
+  note_id: z.string(),
+  user_email: z.email()
+});
+
+export type SharedWithSchema = z.infer<typeof sharedWithSchema>;
+
+export const changesSchema = z.record(
+  z.string(),
+  z.object({
+    created: z.record(z.string(), z.any()).array(),
+    updated: z.record(z.string(), z.any()).array(),
+    deleted: z.string().array()
   })
 );
 
-export type ChangesSchema = typeof changesSchema.static;
+export type ChangesSchema = z.infer<typeof changesSchema>;
 
 export const pushChangesBodySchema = changesSchema;
-export type PushChangesBodySchema = typeof pushChangesBodySchema.static;
+export type PushChangesBodySchema = z.infer<typeof pushChangesBodySchema>;
 
-export const pushChangesQuerySchema = t.Object({
-  last_pulled_at: t.Numeric()
+export const pushChangesQuerySchema = z.object({
+  last_pulled_at: z.number()
 });
 
-export type PushChangesQuerySchema = typeof pushChangesQuerySchema.static;
+export type PushChangesQuerySchema = z.infer<typeof pushChangesQuerySchema>;
 
-export const pullChangesQuerySchema = t.Object({
-  last_pulled_at: t.Optional(t.Numeric()),
-  schema_version: t.Numeric(),
-  migration: t.Optional(
-    t.Nullable(
-      t.Object({
-        from: t.Numeric(),
-        tables: t.Array(t.String()),
-        columns: t.Array(
-          t.Object({
-            table: t.String(),
-            columns: t.Array(t.String())
-          })
-        )
-      })
-    )
-  )
+export const pullChangesQuerySchema = z.object({
+  last_pulled_at: z.number().optional(),
+  schema_version: z.number(),
+  migration: z
+    .object({
+      from: z.number(),
+      tables: z.string().array(),
+      columns: z
+        .object({
+          table: z.string(),
+          columns: z.array(z.string())
+        })
+        .array()
+    })
+    .nullish()
 });
 
-export type PullChangesQuerySchema = typeof pullChangesQuerySchema.static;
+export type PullChangesQuerySchema = z.infer<typeof pullChangesQuerySchema>;
 
-export const pullChangesBodySchema = t.Record(t.String(), t.Array(t.String()));
+export const pullChangesBodySchema = z.record(z.string(), z.string().array());
 
-export type PullChangesBodySchema = typeof pullChangesBodySchema.static;
+export type PullChangesBodySchema = z.infer<typeof pullChangesBodySchema>;

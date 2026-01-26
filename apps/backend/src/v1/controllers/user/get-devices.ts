@@ -14,7 +14,7 @@ type Device = Omit<DeviceTable, "sessionId">;
 
 const { sessionId, ...deviceColumns } = getTableColumns(deviceTable);
 
-export async function getDevices({ user, error }: GetDevicesProps) {
+export async function getDevices({ user, status }: GetDevicesProps) {
   try {
     const [[current], others] = await Promise.all([
       db
@@ -42,6 +42,6 @@ export async function getDevices({ user, error }: GetDevicesProps) {
   } catch (err) {
     console.error("🚀 ~ getDevices ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }

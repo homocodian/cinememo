@@ -16,14 +16,14 @@ interface ChangePasswordProps extends Context {
 
 export async function changePassword({
   user,
-  error,
+  status,
   body
 }: ChangePasswordProps) {
   try {
     const validatedPassword = validatePassword(body.newPassword);
 
     if (!validatedPassword.ok) {
-      return error(400, validatedPassword.error);
+      return status(400, validatedPassword.error);
     }
 
     const [currentUser] = await db
@@ -32,7 +32,7 @@ export async function changePassword({
       .where(eq(userTable.id, user.id));
 
     if (!currentUser || !currentUser.hashedPassword) {
-      return error(404, "User not found");
+      return status(404, "User not found");
     }
 
     const validPassword = await Bun.password.verify(
@@ -41,11 +41,11 @@ export async function changePassword({
     );
 
     if (!validPassword) {
-      return error(400, "Incorrect password");
+      return status(400, "Incorrect password");
     }
 
     if (body.currentPassword === body.newPassword) {
-      return error(400, "New password cannot be the same as the old password");
+      return status(400, "New password cannot be the same as the old password");
     }
 
     const hashedPassword = await Bun.password.hash(body.newPassword);
@@ -71,6 +71,6 @@ export async function changePassword({
   } catch (err) {
     console.log("🚀 ~ err:", err);
     Sentry.captureException(err);
-    return error(500, "Internal Server Error");
+    return status(500, "Internal Server Error");
   }
 }
