@@ -9,12 +9,35 @@ on:
   workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
+  check_version_change:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # fetch base branch (main/master)
+        with:
+          fetch-depth: 0
+
+      - name: Get changed version line
+        id: version_check
+        run: |
+          # compare version
+          VERSION_CHANGE_COUNT=$(git diff origin/main -- apps/backend/package.json | grep -E '^\+[[:space:]]+"version":' | wc -l)
+          echo "changed=$VERSION_CHANGE_COUNT" >> $GITHUB_OUTPUT
+
+    outputs:
+      versionChanged: ${{ steps.version_check.outputs.changed }}
+
   push_to_registry:
     name: Push Docker image to Docker Hub & Deploy
     runs-on: ubuntu-latest
+    # Only run this job if the previous step detected exactly 1 change to the version line
+    if: needs.check_version_change.outputs.versionChanged == '1'
+    needs: check_version_change
+
     steps:
-      - name: check out the repo
-        uses: actions/checkout@v3
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
       - name: Install Bun latest
         uses: oven-sh/setup-bun@v2
