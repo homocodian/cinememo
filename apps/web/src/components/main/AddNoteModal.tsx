@@ -14,7 +14,6 @@ import Select from "@mui/material/Select";
 import { useTheme } from "@mui/material/styles";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 
 import { fetchAPI } from "@/lib/fetch-wrapper";
 
@@ -42,17 +41,6 @@ function AddNoteModal({ open, setOpen }: IProps) {
   const formRef = useRef<HTMLFormElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const submitButtonRef = useRef<HTMLButtonElement | null>(null);
-
-  useHotkeys(
-    "shift+enter",
-    (e) => {
-      e.preventDefault();
-      submitButtonRef.current?.click();
-    },
-    {
-      enableOnFormTags: ["INPUT", "TEXTAREA"]
-    }
-  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -111,6 +99,22 @@ function AddNoteModal({ open, setOpen }: IProps) {
             sx={{ marginBottom: "1rem" }}
             required
             inputRef={inputRef}
+            inputProps={{
+              onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                if (e.key === "Enter") {
+                  // stop propagation of the event if shift key is pressed
+                  // to allow new line in the text area
+                  // this is needed because something is preventing the default behavior of the text area
+                  // and causing text area to prevent new line when shift+enter key is pressed
+                  if (e.shiftKey) {
+                    e.stopPropagation();
+                    return;
+                  }
+                  e.preventDefault();
+                  submitButtonRef.current?.click();
+                }
+              }
+            }}
           />
           <Select
             sx={{ marginTop: "1rem" }}
