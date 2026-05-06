@@ -1,4 +1,4 @@
-import { Input as BaseInput } from "@mui/base/Input";
+import { Input as BaseInput } from "@mui/material";
 import { Box, styled } from "@mui/system";
 import React from "react";
 

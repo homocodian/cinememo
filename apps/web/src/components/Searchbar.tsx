@@ -1,14 +1,13 @@
-import { useSearchParams } from "react-router-dom";
-
 import SearchIcon from "@mui/icons-material/Search";
 import { InputBase, styled } from "@mui/material";
+import { useSearchParams } from "react-router";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
   width: "100%",
   flexGrow: 1,
-  display: "flex",
+  display: "flex"
 }));
 
 const SearchIconWrapper = styled("div")(({ theme }) => ({
@@ -18,7 +17,7 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   pointerEvents: "none",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "center"
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
@@ -29,8 +28,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create("width"),
-    width: "100%",
-  },
+    width: "100%"
+  }
 }));
 
 const Form = styled("form")`

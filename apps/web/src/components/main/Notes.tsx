@@ -1,7 +1,7 @@
 import Masonry from "@mui/lab/Masonry";
 import { useQuery } from "@tanstack/react-query";
 import { Fragment, useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 import NoteSkeleton from "@/components/NoteSkeleton";
 import NoteCard from "@/components/main/NoteCard";

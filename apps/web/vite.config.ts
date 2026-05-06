@@ -5,7 +5,14 @@ import requireTransform from "vite-plugin-require-transform";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), requireTransform()],
+  plugins: [
+    react({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"]
+      }
+    }),
+    requireTransform()
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src")

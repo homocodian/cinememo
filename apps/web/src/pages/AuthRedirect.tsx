@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router";
 
 import Loading from "@/components/Loading";
 import { SESSION_TOKEN_KEY } from "@/constant/auth";

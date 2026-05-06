@@ -1,7 +1,7 @@
 import { ThemeProvider } from "@mui/material/styles";
 import { QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router";
 
 import { RouteComponents } from "@/Routes";
 import AppBar from "@/components/AppBar";
@@ -28,7 +28,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Auth>
           <DrawerProvider>
-            <AppBar />
+            {/*<AppBar />*/}
             <div className="overflow-auto h-full pt-4 pb-10 md:pb-16">
               <Routes>
                 {RouteComponents.map((route) => (

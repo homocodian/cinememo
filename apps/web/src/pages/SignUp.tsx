@@ -20,7 +20,7 @@ import {
 import Container from "@mui/material/Container";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router";
 import { useShallow } from "zustand/react/shallow";
 
 import { SESSION_TOKEN_KEY } from "@/constant/auth";

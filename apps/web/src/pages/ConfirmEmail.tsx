@@ -4,8 +4,7 @@ import { styled } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import React from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 
 import { OTP } from "@/components/OtpInput";
 import { APIError } from "@/lib/api-error";

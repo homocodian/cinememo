@@ -10,7 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 import { routeNames } from "@/Routes";
 import Searchbar from "@/components/Searchbar";

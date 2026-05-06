@@ -1,7 +1,7 @@
-import { useAuthStore } from "@/store/auth";
 import { Fragment, useEffect } from "react";
+import { useNavigate } from "react-router";
 
-import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/auth";
 
 type PrivateRouteProps = {
   children: React.ReactNode;

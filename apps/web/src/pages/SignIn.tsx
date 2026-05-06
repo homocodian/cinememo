@@ -19,8 +19,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import InputAdornment from "@mui/material/InputAdornment";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router";
 
 import FormDialog from "@/components/FormDialog";
 import { SESSION_TOKEN_KEY } from "@/constant/auth";
