@@ -1,14 +1,12 @@
 import * as Sentry from "@sentry/bun";
-import { Client } from "pg";
+import { SQL } from "bun";
 
 import { env } from "@/env";
 
 import { sendDatabaseUnhealthyReport } from "./emails/send-database-unhealthy-report";
 
 export async function checkDatabaseHealth() {
-  const client = new Client({
-    connectionString: env.DATABASE_URL
-  });
+  const client = new SQL(env.DATABASE_URL);
 
   try {
     await client.connect();
