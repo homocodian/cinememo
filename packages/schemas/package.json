@@ -1,0 +1,14 @@
+{
+  "name": "@cinememo/schemas",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "clean": "rm -rf node_modules"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}
