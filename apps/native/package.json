@@ -13,8 +13,8 @@
     "lint-fix": "eslint . --fix",
     "prettier-check": "prettier . --check",
     "prettier-fix": "prettier . --write",
-    "clear": "rimraf -rf .expo && rimraf -rf android",
-    "clean": "rimraf -rf .expo && rimraf -rf android && rimraf -rf node_modules",
+    "clear": "rm -rf .expo && rm -rf android",
+    "clean": "rm -rf .expo && rm -rf android && rm -rf node_modules",
     "build-inspect-android-eas": "eas build:inspect -p android --stage archive --output build-inspect --profile development",
     "build-dev-android-eas": "dotenv -- eas build --platform android --profile development --local"
   },

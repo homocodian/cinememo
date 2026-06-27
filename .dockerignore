@@ -17,6 +17,7 @@ docker-compose*
 **/README.md
 **/LICENSE
 **/*.env
+**/*.env.*
 **/coverage*
 **/dist
 

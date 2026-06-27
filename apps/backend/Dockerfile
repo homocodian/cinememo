@@ -2,14 +2,12 @@ FROM oven/bun as build
 
 WORKDIR /app
 
-COPY package.json ./
-COPY bun.lock ./
+COPY package.json bun.lock ./
+COPY apps/backend/package.json ./apps/backend/package.json
 
-COPY /apps/backend/package.json ./apps/backend/package.json
+RUN bun install --frozen-lockfile
 
-RUN bun install
-
-COPY /apps/backend ./apps/backend
+COPY apps/backend ./apps/backend
 
 WORKDIR /app/apps/backend
 

@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: ./apps/web/Dockerfile
       args:
-        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+        - VITE_API_BASE_URL=${VITE_API_BASE_URL:?err}
     ports:
       - 8080:8080
 
@@ -24,13 +24,13 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-cinememo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      POSTGRES_DB: ${POSTGRES_DB:-cinememo}
+      POSTGRES_USER: ${POSTGRES_USER:?err}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?err}
+      POSTGRES_DB: ${POSTGRES_DB:?err}
     volumes:
       - pg-data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-cinememo}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:?err}"]
       interval: 5s
       timeout: 3s
       retries: 5

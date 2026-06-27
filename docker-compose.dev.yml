@@ -1,0 +1,83 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile.dev
+
+    ports:
+      - "5500:5500"
+
+    env_file:
+      - ./apps/backend/.env
+
+    working_dir: /app/apps/backend
+
+    volumes:
+      - .:/app:Z
+      - /app/node_modules
+      - /app/apps/backend/node_modules
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile.dev
+      args:
+        VITE_API_BASE_URL: http://localhost:5500
+
+    ports:
+      - "4000:4000"
+
+    working_dir: /app/apps/web
+
+    volumes:
+      - .:/app:Z
+      - /app/node_modules
+      - /app/apps/web/node_modules
+
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:latest
+
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_USER: cinememo
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: cinememo
+
+    volumes:
+      - pg-data:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cinememo"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:latest
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis-data:/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pg-data:
+  redis-data:

@@ -12,8 +12,12 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "moduleDetection": "force",
+
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+
     "paths": {
       "@/*": ["./src/*"]
     },

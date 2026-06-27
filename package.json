@@ -15,14 +15,11 @@
     "dev-server": "bun --elide-lines=0 --filter './apps/backend' dev",
     "dev-web": "bun --filter './apps/web' dev",
     "dev-server-web": "bun --elide-lines=0 --filter './apps/backend' --filter './apps/web' dev",
-    "clean-project": "bun --filter '*' clean",
+    "clean-project": "rm -rf node_modules && bun --filter '*' clean",
     "clean-apps": "bun --filter './apps/*' clean"
   },
   "workspaces": [
-    "apps/*"
-  ],
-  "dependencies": {
-    "baseline-browser-mapping": "^2.10.27",
-    "caniuse-lite": "^1.0.30001792"
-  }
+    "apps/*",
+    "packages/*"
+  ]
 }
