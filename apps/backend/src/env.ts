@@ -3,6 +3,7 @@ import * as z from "zod/v4";
 const server = z.object({
   PORT: z.string().min(1).optional(),
   DATABASE_URL: z.string().min(1),
+  DIRECT_DATABASE_URL: z.string().min(1),
   TOKEN_SECRET: z.string().min(1),
   ALGORITHM: z.string().min(1),
   HOSTNAME: z.string().min(1).optional(),
@@ -22,6 +23,7 @@ type ServerEnv = z.infer<typeof server>;
 const processEnv = {
   PORT: process.env.PORT,
   DATABASE_URL: process.env.DATABASE_URL,
+  DIRECT_DATABASE_URL: process.env.DIRECT_DATABASE_URL,
   TOKEN_SECRET: process.env.TOKEN_SECRET,
   ALGORITHM: process.env.ALGORITHM,
   HOSTNAME: process.env.HOSTNAME,

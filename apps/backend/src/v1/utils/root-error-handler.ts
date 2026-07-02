@@ -1,27 +1,53 @@
 import * as Sentry from "@sentry/bun";
-import { ErrorHandler } from "elysia";
+import { DrizzleError, DrizzleQueryError } from "drizzle-orm";
+import { ErrorHandler, ValidationError } from "elysia";
 
 type ErrorParams = Pick<
   Parameters<ErrorHandler>[number],
   "code" | "error" | "status"
 >;
 
-export function rootErrorHandler({ error, status, code }: ErrorParams) {
-  console.log("ROOT ERROR HANDLER: [ERROR]: ", error, "[CODE: ]", code);
+export function rootErrorHandler({ error, status }: ErrorParams) {
+  Sentry.captureException(error);
+  console.error(
+    "\n--- Root error handler ---\n",
+    error,
+    "\n--------------------------\n"
+  );
 
-  if (code === "VALIDATION") {
-    return status(422, (error as any)?.customError ?? "Bad Request");
-  }
-
-  if ((error as any)?.message) {
+  if (error instanceof ValidationError) {
     return status(
-      500,
-      (error as any)?.message.includes("supabase")
-        ? "Something went wrong"
-        : ((error as any)?.customError ?? (error as any)?.message) ||
-            "Something went wrong"
+      "Unprocessable Content",
+      error.all.map((e) => ({
+        path: e.path,
+        message: e.message
+      }))
     );
   }
 
-  return status(500, "Internal Server Error");
+  if (error instanceof DrizzleQueryError) {
+    const cause = error.cause as any;
+
+    console.error("DB query failed:", error.message, cause);
+
+    switch (cause?.code) {
+      case "23505": // unique_violation
+        return status(409, "Resource already exists");
+      case "23503": // foreign_key_violation
+        return status(409, "Related resource not found");
+      case "23502": // not_null_violation
+        return status(400, "Missing required field");
+      default:
+        return status(500, "Database error");
+    }
+  }
+
+  if (error instanceof DrizzleError) {
+    console.error("DB error:", error.message, error.cause);
+    return status(500, "Database error");
+  }
+
+  if ((error as any)?.message?.includes("supabase")) {
+    return status(500, "Something went wrong");
+  }
 }

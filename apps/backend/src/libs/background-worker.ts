@@ -1,19 +1,12 @@
 import { Queue, Worker } from "bullmq";
-import IORedis from "ioredis";
-
-import { env } from "@/env";
 
 import { saveDevice } from "./background/save-device";
 import { sendVerificationCode } from "./background/send-verification-code";
 import { updateSessionLastUsedAt } from "./background/update-session-last-used";
-
-const connection = new IORedis(env.REDIS_URL, {
-  enableOfflineQueue: false,
-  maxRetriesPerRequest: null
-});
+import { redisClient } from "./redis-connection";
 
 export const BgQueue = new Queue("cinememo-bgTask", {
-  connection,
+  connection: redisClient,
   defaultJobOptions: {
     removeOnComplete: true,
     removeOnFail: true,
@@ -46,7 +39,7 @@ const BgWorker = new Worker(
     }
   },
   {
-    connection
+    connection: redisClient
   }
 );
 

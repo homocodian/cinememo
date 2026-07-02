@@ -1,9 +1,16 @@
-import { SQL } from "bun";
-import { drizzle } from "drizzle-orm/bun-sql";
+import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import * as path from "node:path";
 
-const sql = new SQL(process.env.DATABASE_URL!, { max: 1 });
+import { env } from "@/env";
+
+import { createSqlClient } from "./client";
+
+const sql = createSqlClient(env.DIRECT_DATABASE_URL, {
+  max: 1,
+  prepare: false
+});
+
 const db = drizzle(sql);
 
 async function runMigration() {
