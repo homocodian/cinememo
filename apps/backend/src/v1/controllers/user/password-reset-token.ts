@@ -1,3 +1,4 @@
+import type { PasswordResetToken } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -10,7 +11,6 @@ import { passwordResetTokenTable, userTable } from "@/db/schema/user";
 import { lucia } from "@/libs/auth";
 import { signJwtAsync } from "@/libs/jwt";
 import { validatePassword } from "@/libs/password-validation";
-import { PasswordResetToken } from "@/v1/validations/user";
 
 interface PasswordResetTokenProps extends Omit<Context, "params"> {
   body: PasswordResetToken;

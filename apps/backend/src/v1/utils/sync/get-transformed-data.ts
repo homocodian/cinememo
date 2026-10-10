@@ -1,6 +1,7 @@
+import type { PullChangesBody } from "@cinememo/schemas/sync";
+
 import { Note } from "@/db/schema/note";
 import { SharedWith } from "@/v1/controllers/sync/pull-changes";
-import { PullChangesBodySchema } from "@/v1/validations/sync";
 
 type Data = Record<
   string,
@@ -13,10 +14,7 @@ type Data = Record<
 
 type Collection = Record<string, unknown>;
 
-export function getTransformData(
-  data: Data,
-  transformInto: PullChangesBodySchema
-) {
+export function getTransformData(data: Data, transformInto: PullChangesBody) {
   const changes: Record<
     string,
     { created: Collection[]; updated: Collection[]; deleted: string[] }

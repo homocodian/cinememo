@@ -1,10 +1,8 @@
+import type { User } from "@cinememo/schemas/user";
 import { and, eq, getTableColumns, gt, isNull, lt, or, sql } from "drizzle-orm";
-import { User } from "lucia";
 
 import { db } from "@/db";
-import { Note, noteTable, notesToUsersTable } from "@/db/schema/note";
-import { userTable } from "@/db/schema/user";
-import { SharedWith } from "@/v1/controllers/sync/pull-changes";
+import { noteTable, notesToUsersTable } from "@/db/schema/note";
 
 const noteFields = getTableColumns(noteTable);
 

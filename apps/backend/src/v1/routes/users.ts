@@ -1,3 +1,5 @@
+import { createFCMTokenSchema } from "@cinememo/schemas/fcm-token";
+import { changePasswordSchema, userUpdateSchema } from "@cinememo/schemas/user";
 import bearer from "@elysiajs/bearer";
 import Elysia from "elysia";
 import { rateLimit } from "elysia-rate-limit";
@@ -9,14 +11,17 @@ import { createFCMToken } from "../controllers/user/fcm-token";
 import { getDevices } from "../controllers/user/get-devices";
 import { revokeDevice } from "../controllers/user/revoke-device";
 import { updateUser } from "../controllers/user/update";
+import { authModal } from "../middleware/auth-model";
 import { errorHandlerInstance } from "../utils/error-handler";
 import { deriveUser } from "../utils/note/derive-user";
-import { createFCMTokenSchema } from "../validations/fcm-token";
-import { changePasswordSchema, userUpdateSchema } from "../validations/user";
 
 export const userRoute = new Elysia({ prefix: "/user" })
   .use(bearer())
+  .use(authModal)
   .use(errorHandlerInstance)
+  .guard({
+    cookie: "auth.session"
+  })
   .derive(deriveUser)
   .use(
     rateLimit({

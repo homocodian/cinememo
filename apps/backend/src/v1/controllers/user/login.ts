@@ -1,21 +1,29 @@
+import type { LoginUser, User } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { eq } from "drizzle-orm";
-import { Context } from "elysia";
+import type { Context } from "elysia";
 
 import { db } from "@/db";
 import { userTable } from "@/db/schema/user";
-import { lucia } from "@/libs/auth";
+import { createSessionCookie, lucia } from "@/libs/auth";
 import { BgQueue } from "@/libs/background-worker";
 import { SaveDeviceProps } from "@/libs/background/save-device";
 import { signJwtAsync } from "@/libs/jwt";
-import { LoginUser, UserSchema } from "@/v1/validations/user";
+import { Cookie } from "@/types/cookie";
 
 interface LoginUserProps extends Context {
   body: LoginUser;
   ip?: string;
+  cookie: Cookie;
 }
 
-export async function loginUser({ body, status, request, ip }: LoginUserProps) {
+export async function loginUser({
+  body,
+  status,
+  request,
+  ip,
+  cookie
+}: LoginUserProps) {
   const [user] = await db
     .select()
     .from(userTable)
@@ -47,6 +55,7 @@ export async function loginUser({ body, status, request, ip }: LoginUserProps) {
       .where(eq(userTable.id, user.id));
 
     const sessionToken = await signJwtAsync(session.id);
+    cookie.session.set(createSessionCookie(session.id));
 
     await BgQueue.add("saveDevice", {
       ip,
@@ -66,7 +75,7 @@ export async function loginUser({ body, status, request, ip }: LoginUserProps) {
       photoURL: user.photoURL,
       displayName: user.displayName,
       sessionToken
-    } satisfies UserSchema & { sessionToken: string };
+    } satisfies User & { sessionToken: string };
   } catch (err) {
     console.error("🚀 ~ loginUser ~ err:", err);
     Sentry.captureException(err);

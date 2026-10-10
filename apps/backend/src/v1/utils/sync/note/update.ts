@@ -1,6 +1,5 @@
+import { noteSchema } from "@cinememo/schemas/sync";
 import * as z from "zod/v4";
-
-import { noteSchema } from "@/v1/validations/sync";
 
 import { ValidationError } from "../validation-error";
 

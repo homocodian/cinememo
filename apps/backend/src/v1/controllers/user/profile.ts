@@ -1,3 +1,4 @@
+import type { User } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { Context } from "elysia";
 
@@ -5,16 +6,17 @@ import { lucia } from "@/libs/auth";
 import { BgQueue } from "@/libs/background-worker";
 import { UpdateSessionLastUsedAtProps } from "@/libs/background/update-session-last-used";
 import { VerifyJwtAsync } from "@/libs/jwt";
-import { UserSchema } from "@/v1/validations/user";
+import { Cookie } from "@/types/cookie";
 
 interface GetProfileProps extends Context {
-  bearer: string | undefined;
+  cookie: Cookie;
 }
 
-export async function getProfile({ bearer, status }: GetProfileProps) {
-  if (!bearer) return status(401, "Unauthorized");
+export async function getProfile({ status, cookie }: GetProfileProps) {
   try {
-    const sessionId = await VerifyJwtAsync(bearer);
+    // const sessionId = await VerifyJwtAsync(bearer);
+    const sessionId = cookie.session.value;
+    console.log("sessionId: ", sessionId);
 
     if (typeof sessionId !== "string") {
       return status(500, "Internal Server Error");
@@ -41,7 +43,7 @@ export async function getProfile({ bearer, status }: GetProfileProps) {
       emailVerified: user.emailVerified,
       photoURL: user.photoURL,
       displayName: user.displayName
-    } satisfies UserSchema;
+    } satisfies User;
   } catch (err) {
     console.log("🚀 ~ getProfile ~ err:", err);
     Sentry.captureException(err);

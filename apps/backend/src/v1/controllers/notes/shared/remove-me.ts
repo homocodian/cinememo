@@ -1,3 +1,4 @@
+import type { ShareNoteParams } from "@cinememo/schemas/note";
 import * as Sentry from "@sentry/bun";
 import { and, eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -5,7 +6,6 @@ import type { User } from "lucia";
 
 import { db } from "@/db";
 import { notesToUsersTable } from "@/db/schema/note";
-import { ShareNoteParams } from "@/v1/validations/note";
 
 interface RemoveSharedNoteForMeProps extends Omit<Context, "params"> {
   user: User;

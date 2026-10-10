@@ -1,19 +1,21 @@
+import type { Logout } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { and, eq } from "drizzle-orm";
 import { Context } from "elysia";
 
 import { db } from "@/db";
 import { FCMTokenTable } from "@/db/schema/fcm-token";
-import { lucia } from "@/libs/auth";
+import { deleteSessionCookie, lucia } from "@/libs/auth";
 import { VerifyJwtAsync } from "@/libs/jwt";
-import { LogoutSchema } from "@/v1/validations/user";
+import { Cookie } from "@/types/cookie";
 
 interface LogoutProps extends Context {
   bearer: string | undefined;
-  body: LogoutSchema;
+  body: Logout;
+  cookie: Cookie;
 }
 
-export async function logout({ bearer, status, body }: LogoutProps) {
+export async function logout({ bearer, status, body, cookie }: LogoutProps) {
   if (!bearer) return status(401, "Unauthorized");
   try {
     const sessionId = await VerifyJwtAsync(bearer);
@@ -27,6 +29,7 @@ export async function logout({ bearer, status, body }: LogoutProps) {
     if (!user) return status(401, "Unauthorized");
 
     await lucia.invalidateSession(sessionId);
+    cookie.session.set(deleteSessionCookie());
 
     if (body?.deviceId) {
       await db

@@ -3,6 +3,7 @@ import { Google } from "arctic";
 import { Lucia } from "lucia";
 
 import { env } from "@/env";
+import type { CookieOptions } from "@/types/cookie";
 
 import { db } from "../db";
 import { sessionTable, userTable } from "../db/schema/user";
@@ -11,10 +12,10 @@ const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
 
 export const lucia = new Lucia(adapter, {
   sessionCookie: {
-    // attributes: {
-    //   // set to `true` when using HTTPS
-    //   secure: process.env.NODE_ENV === "production"
-    // }
+    attributes: {
+      // set to `true` when using HTTPS
+      secure: process.env.NODE_ENV === "production"
+    }
   },
   getUserAttributes: (attributes) => {
     return {
@@ -46,4 +47,36 @@ declare module "lucia" {
       disabled: boolean;
     };
   }
+}
+
+export function deleteExpiredSessions() {
+  return lucia.deleteExpiredSessions();
+}
+
+export function createSessionCookie(sessionId: string): CookieOptions {
+  const cookie = lucia.createSessionCookie(sessionId);
+  return {
+    domain: cookie.attributes.domain,
+    path: cookie.attributes.path,
+    httpOnly: cookie.attributes.httpOnly,
+    secure: cookie.attributes.secure,
+    sameSite: cookie.attributes.sameSite,
+    expires: cookie.attributes.expires,
+    maxAge: cookie.attributes.maxAge,
+    value: cookie.value
+  };
+}
+
+export function deleteSessionCookie(): CookieOptions {
+  const cookie = lucia.createBlankSessionCookie();
+  return {
+    domain: cookie.attributes.domain,
+    path: cookie.attributes.path,
+    httpOnly: cookie.attributes.httpOnly,
+    secure: cookie.attributes.secure,
+    sameSite: cookie.attributes.sameSite,
+    expires: cookie.attributes.expires,
+    maxAge: cookie.attributes.maxAge,
+    value: cookie.value
+  };
 }

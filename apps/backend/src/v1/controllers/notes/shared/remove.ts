@@ -1,3 +1,7 @@
+import type {
+  PatchShareNoteWithUsersBody,
+  ShareNoteParams
+} from "@cinememo/schemas/note";
 import * as Sentry from "@sentry/bun";
 import { and, eq, inArray } from "drizzle-orm";
 import { Context } from "elysia";
@@ -6,10 +10,6 @@ import { User } from "lucia";
 import { db } from "@/db";
 import { noteTable, notesToUsersTable } from "@/db/schema/note";
 import { userTable } from "@/db/schema/user";
-import type {
-  PatchShareNoteWithUsersBody,
-  ShareNoteParams
-} from "@/v1/validations/note";
 
 interface ShareNoteProps extends Omit<Context, "params"> {
   user: User;

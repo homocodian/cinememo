@@ -1,3 +1,4 @@
+import { UpdateNoteParams } from "@cinememo/schemas/note";
 import * as Sentry from "@sentry/bun";
 import { and, eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -5,11 +6,10 @@ import { User } from "lucia";
 
 import { db } from "@/db";
 import { noteTable } from "@/db/schema/note";
-import { UpdateNoteParamsSchema } from "@/v1/validations/note";
 
 interface DeleteNoteProps extends Omit<Context, "params"> {
   user: User;
-  params: Readonly<UpdateNoteParamsSchema>;
+  params: Readonly<UpdateNoteParams>;
 }
 
 export async function deleteNote({ user, status, params }: DeleteNoteProps) {

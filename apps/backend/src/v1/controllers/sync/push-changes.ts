@@ -1,3 +1,4 @@
+import type { PushChangesBody, PushChangesQuery } from "@cinememo/schemas/sync";
 import * as Sentry from "@sentry/bun";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { Context } from "elysia";
@@ -9,15 +10,11 @@ import { getNotesToCreate } from "@/v1/utils/sync/note/create";
 import { getNotesToDelete } from "@/v1/utils/sync/note/delete";
 import { getNotesToUpdate } from "@/v1/utils/sync/note/update";
 import { ValidationError } from "@/v1/utils/sync/validation-error";
-import {
-  PushChangesBodySchema,
-  PushChangesQuerySchema
-} from "@/v1/validations/sync";
 
 interface PushChangesProps extends Omit<Context, "query"> {
   user: User;
-  query: PushChangesQuerySchema;
-  body: PushChangesBodySchema;
+  query: PushChangesQuery;
+  body: PushChangesBody;
 }
 
 export async function pushChanges({

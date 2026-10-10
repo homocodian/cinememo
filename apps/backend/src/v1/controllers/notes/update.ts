@@ -1,3 +1,4 @@
+import type { UpdateNote, UpdateNoteParams } from "@cinememo/schemas/note";
 import * as Sentry from "@sentry/bun";
 import { and, eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -5,12 +6,11 @@ import { User } from "lucia";
 
 import { db } from "@/db";
 import { noteTable } from "@/db/schema/note";
-import type { UpdateNote, UpdateNoteParamsSchema } from "@/v1/validations/note";
 
 interface UpdateNoteProps extends Omit<Context, "params"> {
   user: User;
   body: UpdateNote;
-  params: UpdateNoteParamsSchema;
+  params: UpdateNoteParams;
 }
 
 export async function updateNote({

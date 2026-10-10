@@ -1,11 +1,11 @@
+import type { OAuthQuery } from "@cinememo/schemas/user";
 import { generateCodeVerifier, generateState } from "arctic";
 import { Context } from "elysia";
 
 import { google } from "@/libs/auth";
-import { OAuthQuerySchema } from "@/v1/validations/user";
 
 interface GoogleLoginProps extends Omit<Context, "query"> {
-  query: OAuthQuerySchema;
+  query: OAuthQuery;
   ip: string;
 }
 

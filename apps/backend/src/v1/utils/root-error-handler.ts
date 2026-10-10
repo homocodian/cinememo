@@ -7,21 +7,26 @@ type ErrorParams = Pick<
   "code" | "error" | "status"
 >;
 
-export function rootErrorHandler({ error, status }: ErrorParams) {
+export function rootErrorHandler({ error, status, code }: ErrorParams) {
   Sentry.captureException(error);
-  console.error(
-    "\n--- Root error handler ---\n",
+  console.log(
+    "\n--- ROOT_ERROR_HANDLER ---\n",
+    "CODE = ",
+    code,
+    "\n",
+    "ERROR = ",
     error,
-    "\n--------------------------\n"
+    "\n--- ROOT_ERROR_HANDLER ---\n"
   );
 
   if (error instanceof ValidationError) {
     return status(
       "Unprocessable Content",
-      error.all.map((e) => ({
-        path: e.path,
-        message: e.message
-      }))
+      error.customError ??
+        error.all.map((e) => ({
+          path: e.path,
+          message: e.message
+        }))
     );
   }
 

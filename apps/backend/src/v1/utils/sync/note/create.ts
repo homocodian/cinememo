@@ -1,7 +1,7 @@
-import { User } from "lucia";
+import { noteSchema } from "@cinememo/schemas/sync";
+import type { User } from "@cinememo/schemas/user";
 
 import { CreateNote, NoteCategory } from "@/db/schema/note";
-import { noteSchema } from "@/v1/validations/sync";
 
 import { ValidationError } from "../validation-error";
 

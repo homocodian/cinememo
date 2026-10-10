@@ -1,3 +1,4 @@
+import type { PullChangesBody, PullChangesQuery } from "@cinememo/schemas/sync";
 import * as Sentry from "@sentry/bun";
 import { Context, t } from "elysia";
 import { User } from "lucia";
@@ -5,17 +6,13 @@ import { User } from "lucia";
 import { NotesToUsers } from "@/db/schema/note";
 import { getData } from "@/v1/utils/sync/get-data";
 import { getTransformData } from "@/v1/utils/sync/get-transformed-data";
-import {
-  PullChangesBodySchema,
-  PullChangesQuerySchema
-} from "@/v1/validations/sync";
 
 export type SharedWith = NotesToUsers & { user_email: string; id: null };
 
 interface PullChangesProps extends Omit<Context, "query"> {
   user: User;
-  query: PullChangesQuerySchema;
-  body: PullChangesBodySchema;
+  query: PullChangesQuery;
+  body: PullChangesBody;
 }
 
 export async function pullChanges({

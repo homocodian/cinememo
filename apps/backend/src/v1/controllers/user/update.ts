@@ -1,15 +1,14 @@
+import type { User, UserUpdate } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { eq } from "drizzle-orm";
 import { Context } from "elysia";
-import { User } from "lucia";
 
 import { db } from "@/db";
 import { userTable } from "@/db/schema/user";
-import type { UserSchema, UserUpdateSchema } from "@/v1/validations/user";
 
 interface UpdateUserProps extends Context {
   user: User;
-  body: UserUpdateSchema;
+  body: UserUpdate;
 }
 
 export async function updateUser({ user, status, body }: UpdateUserProps) {
@@ -30,7 +29,7 @@ export async function updateUser({ user, status, body }: UpdateUserProps) {
       photoURL: updatedUser.photoURL,
       displayName: updatedUser.displayName,
       emailVerified: updatedUser.emailVerified
-    } satisfies UserSchema;
+    } satisfies User;
   } catch (err) {
     console.error("🚀 ~ updateUser ~ err:", err);
     Sentry.captureException(err);

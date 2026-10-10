@@ -11,7 +11,8 @@
     "build": "NODE_ENV=production bun build --target=bun --minify --sourcemap ./src/index.ts --outdir ./dist",
     "start": "NODE_ENV=production bun ./dist/index.js",
     "test": "bun test",
-    "gen:types": "bunx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly --outDir ./dist",
+    "types:gen": "bunx tsc --project ./tsconfig.json --declaration --emitDeclarationOnly --outDir ./dist",
+    "types:check": "bunx tsc --project ./tsconfig.json --noEmit",
     "db:migrate": "bun run ./src/db/migrate.ts",
     "db:generate": "drizzle-kit generate",
     "db:studio": "drizzle-kit studio",
@@ -45,7 +46,8 @@
     "react": "^19.2.6",
     "resend": "6.8.0",
     "ua-parser-js": "^1.0.41",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "@cinememo/schemas": "workspace:*"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",

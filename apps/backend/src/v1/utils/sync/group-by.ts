@@ -1,4 +1,4 @@
-export function groupByWithoutBy<T, K extends keyof T>(
+export function groupByOmittingKey<T, K extends keyof T>(
   array: T[],
   key: K
 ): Record<string, Omit<T, K>[]> {

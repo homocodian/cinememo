@@ -1,3 +1,9 @@
+import {
+  type Device,
+  type OAuthQuery,
+  type User,
+  deviceSchema
+} from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { OAuth2RequestError } from "arctic";
 import { and, eq } from "drizzle-orm";
@@ -13,15 +19,9 @@ import { SaveDeviceProps } from "@/libs/background/save-device";
 import { signJwtAsync } from "@/libs/jwt";
 import { parseJson } from "@/libs/parse-json";
 import { Prettify } from "@/types/prettify";
-import {
-  DeviceSchema,
-  OAuthQuerySchema,
-  UserSchema,
-  deviceSchema
-} from "@/v1/validations/user";
 
 interface GoogleCallbackProps extends Omit<Context, "query"> {
-  query: OAuthQuerySchema;
+  query: OAuthQuery;
 }
 
 const googleUserSchema = z.object({
@@ -182,7 +182,7 @@ export async function googleCallback({
       ua: request.headers.get("user-agent") ?? undefined,
       userId: user.id,
       sessionId: session.id,
-      device: parsedDevice ? (deviceCookie as DeviceSchema) : undefined
+      device: parsedDevice ? (deviceCookie as Device) : undefined
     } satisfies SaveDeviceProps).catch((err) => {
       console.log("🚀 ~ loginUser saveDevice ~ err", err);
       Sentry.captureException(err);
@@ -194,7 +194,7 @@ export async function googleCallback({
       emailVerified: user.emailVerified,
       photoURL: user.photoURL,
       displayName: user.displayName
-    } satisfies UserSchema;
+    } satisfies User;
 
     return redirect(
       `${redirectURL}?sessionToken=${sessionToken}&user=${encodeURIComponent(JSON.stringify(sessionUser))}`

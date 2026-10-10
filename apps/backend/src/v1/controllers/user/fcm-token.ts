@@ -1,10 +1,10 @@
+import type { CreateFCMToken } from "@cinememo/schemas/fcm-token";
 import * as Sentry from "@sentry/bun";
 import { Context } from "elysia";
 
 import { db } from "@/db";
 import { FCMTokenTable } from "@/db/schema/fcm-token";
 import { UserWithSession } from "@/v1/utils/note/derive-user";
-import { CreateFCMToken } from "@/v1/validations/fcm-token";
 
 interface CreateFCMTokenProps extends Context {
   user: UserWithSession;

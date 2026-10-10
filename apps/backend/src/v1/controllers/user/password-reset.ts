@@ -1,3 +1,4 @@
+import type { PasswordReset } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -7,7 +8,6 @@ import { userTable } from "@/db/schema/user";
 import { env } from "@/env";
 import { sendPasswordResetToken } from "@/libs/emails/password-reset";
 import { createPasswordResetToken } from "@/v1/utils/user/create-password-reset-token";
-import { PasswordReset } from "@/v1/validations/user";
 
 interface PasswordResetProps extends Context {
   body: PasswordReset;

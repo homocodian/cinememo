@@ -1,3 +1,4 @@
+import type { ChangePassword } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { and, eq, ne } from "drizzle-orm";
 import { Context } from "elysia";
@@ -7,11 +8,10 @@ import { FCMTokenTable } from "@/db/schema/fcm-token";
 import { sessionTable, userTable } from "@/db/schema/user";
 import { validatePassword } from "@/libs/password-validation";
 import { UserWithSession } from "@/v1/utils/note/derive-user";
-import { ChangePasswordSchema } from "@/v1/validations/user";
 
 interface ChangePasswordProps extends Context {
   user: UserWithSession;
-  body: ChangePasswordSchema;
+  body: ChangePassword;
 }
 
 export async function changePassword({

@@ -1,3 +1,4 @@
+import type { EmailVerification } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -6,7 +7,6 @@ import { User } from "lucia";
 import { db } from "@/db";
 import { userTable } from "@/db/schema/user";
 import { verifyVerificationCode } from "@/v1/utils/user/verify-verification-code";
-import { EmailVerification } from "@/v1/validations/user";
 
 interface EmailVerificationProps extends Context {
   user: User;

@@ -1,3 +1,11 @@
+import {
+  createNoteSchema,
+  patchShareNoteWithUsersBody,
+  shareNoteParams,
+  shareNoteWithUsersSchema,
+  updateNoteParamsSchema,
+  updateNoteSchema
+} from "@cinememo/schemas/note";
 import bearer from "@elysiajs/bearer";
 import Elysia from "elysia";
 import { rateLimit } from "elysia-rate-limit";
@@ -14,20 +22,14 @@ import { removeUserFromSharedNote } from "../controllers/notes/shared/remove";
 import { removeSharedNoteForMe } from "../controllers/notes/shared/remove-me";
 import { shareNote } from "../controllers/notes/shared/share";
 import { updateNote } from "../controllers/notes/update";
+import { authModal } from "../middleware/auth-model";
 import { errorHandlerInstance } from "../utils/error-handler";
 import { deriveUser } from "../utils/note/derive-user";
-import {
-  createNoteSchema,
-  patchShareNoteWithUsersBody,
-  shareNoteParams,
-  shareNoteWithUsersSchema,
-  updateNoteParamsSchema,
-  updateNoteSchema
-} from "../validations/note";
 
 export const noteRoute = new Elysia({ prefix: "/notes" })
   .use(errorHandlerInstance)
   .use(bearer())
+  .use(authModal)
   .use(
     rateLimit({
       max: 50,
@@ -35,6 +37,9 @@ export const noteRoute = new Elysia({ prefix: "/notes" })
       generator: rateLimiterkeyGenerator
     })
   )
+  .guard({
+    cookie: "auth.session"
+  })
   .derive(deriveUser)
   .get("/", getNotes)
   .get("/shared", getSharedNotes)

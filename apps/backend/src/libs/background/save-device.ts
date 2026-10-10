@@ -1,3 +1,4 @@
+import type { Device } from "@cinememo/schemas/user";
 import countryLookup from "country-code-lookup";
 import UAParser from "ua-parser-js";
 import * as z from "zod/v4";
@@ -5,7 +6,6 @@ import * as z from "zod/v4";
 import { db } from "@/db";
 import { deviceTable, deviceTypeList } from "@/db/schema/user";
 import { env } from "@/env";
-import { DeviceSchema } from "@/v1/validations/user";
 
 const ipResultSchema = z.object({
   ip: z.string().min(1).nullish(),
@@ -22,7 +22,7 @@ export type SaveDeviceProps = {
   userId: number;
   sessionId: string;
   ua?: string;
-  device?: DeviceSchema;
+  device?: Device;
 };
 
 export async function saveDevice({
@@ -51,7 +51,7 @@ export async function saveDevice({
 
   const { data } = ipResultSchema.safeParse(ipResult);
 
-  let deviceData: DeviceSchema = undefined;
+  let deviceData: Device = undefined;
 
   if (!device) {
     const parser = new UAParser(ua);

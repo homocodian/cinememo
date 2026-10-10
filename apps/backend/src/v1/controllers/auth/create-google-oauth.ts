@@ -1,3 +1,5 @@
+import type { OAuthBody, OAuthUser } from "@cinememo/schemas/auth";
+import type { User } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { and, eq } from "drizzle-orm";
 import { Context } from "elysia";
@@ -9,11 +11,9 @@ import { BgQueue } from "@/libs/background-worker";
 import { SaveDeviceProps } from "@/libs/background/save-device";
 import { signJwtAsync } from "@/libs/jwt";
 import { Prettify } from "@/types/prettify";
-import { OAuthBodySchema, OAuthUserSchema } from "@/v1/validations/auth";
-import { UserSchema } from "@/v1/validations/user";
 
 interface CreateGoogleOAuthProps extends Context {
-  body: OAuthBodySchema;
+  body: OAuthBody;
   ip: string;
 }
 
@@ -108,7 +108,7 @@ export async function createGoogleOAuth({
       photoURL: user.photoURL,
       displayName: user.displayName,
       sessionToken: sessionToken
-    } satisfies UserSchema & { sessionToken: string };
+    } satisfies User & { sessionToken: string };
 
     return sessionUser;
   } catch (err) {
@@ -124,7 +124,7 @@ type UserPropToUpdate = Partial<
   Pick<UserTable, "emailVerified" | "photoURL" | "displayName" | "lastSignInAt">
 >;
 
-function getUserPropToUpdate(user: UserTable, googleUser: OAuthUserSchema) {
+function getUserPropToUpdate(user: UserTable, googleUser: OAuthUser) {
   const propsToUpdate: Prettify<UserPropToUpdate> = {};
 
   if (!user.emailVerified === false) {

@@ -1,27 +1,30 @@
+import { isValidEmail } from "@cinememo/schemas/email";
+import type { RegisterUser, User } from "@cinememo/schemas/user";
 import * as Sentry from "@sentry/bun";
 import { Context } from "elysia";
 
 import { db } from "@/db";
 import { userTable } from "@/db/schema/user";
-import { lucia } from "@/libs/auth";
+import { createSessionCookie, lucia } from "@/libs/auth";
 import { BgQueue } from "@/libs/background-worker";
 import { type SaveDeviceProps } from "@/libs/background/save-device";
 // import { type SendVerificationCodeProps } from "@/libs/background/send-verification-code";
 import { JwtError, signJwtAsync } from "@/libs/jwt";
 import { validatePassword } from "@/libs/password-validation";
-import { isValidEmail } from "@/v1/validations/email";
-import { RegisterUser, UserSchema } from "@/v1/validations/user";
+import { Cookie } from "@/types/cookie";
 
 interface RegisterUserProps extends Context {
   body: RegisterUser;
   ip?: string;
+  cookie: Cookie;
 }
 
 export async function registerUser({
   body,
   status,
   ip,
-  request
+  request,
+  cookie
 }: RegisterUserProps) {
   if (!isValidEmail(body.email)) {
     return status(400, "Invalid email");
@@ -80,6 +83,8 @@ export async function registerUser({
       Sentry.captureException(error);
     });
 
+    cookie.session.set(createSessionCookie(session.id));
+
     return {
       id: user.id,
       email: user.email,
@@ -87,7 +92,7 @@ export async function registerUser({
       photoURL: user.photoURL,
       displayName: user.displayName,
       sessionToken
-    } satisfies UserSchema & { sessionToken: string };
+    } satisfies User & { sessionToken: string };
   } catch (err) {
     console.log("🚀 ~ registerUser ~ err:", err);
 

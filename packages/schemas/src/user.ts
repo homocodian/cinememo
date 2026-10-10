@@ -23,31 +23,41 @@ export const deviceSchema = z
 
 export type Device = z.infer<typeof deviceSchema>;
 
-export const registerUserSchema = z.object(
-  {
-    fullName: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z
-        .string({ error: "Name is required" })
-        .min(3, "Name must of at least 3 characters")
+export const registerUserSchema = z
+  .object(
+    {
+      fullName: z.preprocess(
+        (val) => (val === "" ? undefined : val),
+        z
+          .string({ error: "Name is required" })
+          .min(3, "Name must of at least 3 characters")
+          .optional(),
+      ),
+      email: z
+        .string({
+          error: "Email must of at least 3 characters",
+        })
+        .min(3, "Email must of at least 3 characters"),
+      password: z
+        .string({
+          error: "Password must be at least 8 characters",
+        })
+        .min(8, "Password must be at least 8 characters"),
+      confirmPassword: z
+        .string({
+          error: "Confirm password is required",
+        })
         .optional(),
-    ),
-    email: z
-      .string({
-        error: "Email must of at least 3 characters",
-      })
-      .min(3, "Email must of at least 3 characters"),
-    password: z
-      .string({
-        error: "Password must be at least 6 characters",
-      })
-      .min(8, "Password must be at least 6 characters"),
-    device: deviceSchema,
-  },
-  {
-    error: "Expected an email and password",
-  },
-);
+      device: deviceSchema,
+    },
+    {
+      error: "Expected an email and password",
+    },
+  )
+  .refine((data) => data.password === data.confirmPassword, {
+    error: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export type RegisterUser = z.infer<typeof registerUserSchema>;
 
